@@ -42,7 +42,7 @@ export default function AboutCommisioner({imgSrc, title}: AboutCommisionerProps)
                 <p className="text-dark-primary-body text-base mb-6 text-justify">
                     He launched SkillUpImo, aiming to train 100,000 youths in tech skills like software development and blockchain. His work promotes smart cities, digital governance, and youth empowerment. Dr. Amadi has received awards for leadership and innovation in public service.
                 </p>
-                <AppLink href="/about-us" label="Our Team" variant="primary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
+                <AppLink href="/about-us/team/#team" label="Our Team" variant="primary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
             </div>
         </motion.div>
     </section>

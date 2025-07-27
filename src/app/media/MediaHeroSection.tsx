@@ -1,5 +1,6 @@
 import React from "react";
 import SearchBar from "../components/SearchBar";
+import { SubsequentHero } from "../components/Hero";
 
 interface MediaHeroSectionProps {
   title: string;
@@ -9,19 +10,15 @@ interface MediaHeroSectionProps {
 
 const MediaHeroSection: React.FC<MediaHeroSectionProps> = ({ title, subtitle, backgroundImage }) => {
   return (
-    <section
-      className="relative w-full h-[380px] md:h-[420px] flex flex-col justify-center items-center text-center bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-    >
-      <div className="absolute inset-0 bg-black/60 z-0" />
+    <SubsequentHero className="bg-[url('/images/gradient.png')]">
       <div className="relative z-10 w-full flex flex-col items-center justify-end gap-0 h-full px-4">
-        <h1 className="text-white text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">{title}</h1>
-        <p className="text-white text-lg md:text-[16px] max-w-2xl drop-shadow-lg">{subtitle}</p>
+        <h1 className="text-white text-3xl md:text-5xl font-bold drop-shadow-lg">{title}</h1>
+        <p className="text-white text-base text-center max-w-2xl drop-shadow-lg">{subtitle}</p>
         <SearchBar
           placeholder="Search"
         />
       </div>
-    </section>
+    </SubsequentHero>
   );
 };
 
