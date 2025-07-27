@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function EventsHeroSection() {
   return (
     <section className="relative w-full h-[400px] flex items-center justify-center bg-[url('/images/gradient.png')] bg-cover bg-center">

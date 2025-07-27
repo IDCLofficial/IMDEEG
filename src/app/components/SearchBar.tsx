@@ -1,6 +1,6 @@
 import { LuSearch } from "react-icons/lu";
 
-export default function SearchBar({placeholder}:any) {
+export default function SearchBar({placeholder}:{placeholder:string}) {
   return (
     <div className="flex justify-center py-8 max-md:py-4 w-full md:w-[50%]">
       <form className="flex w-full">
