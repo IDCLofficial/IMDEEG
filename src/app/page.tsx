@@ -1,7 +1,4 @@
-import { AppLink } from "@/app/components/AppLink";
 import { Hero } from "@/app/components/Hero";
-import { Title } from "@/app/components/Title";
-import Image from "next/image";
 import AboutSection from "@/app/components/AboutSection";
 import AboutCommisioner from "@/app/components/AboutCommisioner";
 import QuickLinks from "@/app/components/QuickLinks";
