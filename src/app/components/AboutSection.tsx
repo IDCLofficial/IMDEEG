@@ -40,7 +40,7 @@ export default function AboutSection({title, subtitle, image1, image2}: AboutSec
                 <p className="text-gray-200 text-base mb-6 max-w-lg text-justify">
                     {subtitle}
                 </p>
-                <AppLink href="/about" label="Learn More" variant="secondary" className="border border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
+                <AppLink href="/about" label="Learn More" variant="secondary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
             </div>
         </div>
         {/* Right: Images */}

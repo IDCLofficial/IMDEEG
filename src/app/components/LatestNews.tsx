@@ -51,7 +51,7 @@ export default function LatestNews() {
         ))}
       </div>
       <div className="flex justify-center">
-        <AppLink href="/news" label="See More" variant="primary" className="border border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
+        <AppLink href="/news" label="See More" variant="primary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
       </div>
     </motion.section>
   );
