@@ -3,54 +3,7 @@ import MediaHeroSection from "./MediaHeroSection";
 import MediaGalleryGrid from "./MediaGalleryGrid";
 import Footer from "../components/Footer";
 import CTASection from "../components/CTASection";
-
-const mediaItems = [
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-  {
-    image: "/images/homeImage2.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: true,
-  },
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: true,
-  },
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-  {
-    image: "/images/homeImage1.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-  {
-    image: "/images/homeImage2.png",
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY.",
-    isVideo: false,
-  },
-];
+import { mediaData } from "./mediaData";
 
 export default function MediaPage() {
   return (
@@ -61,7 +14,7 @@ export default function MediaPage() {
         backgroundImage="/images/heroImage.png"
       />
       <section className="w-full max-w-7xl mx-auto py-12 px-4">
-        <MediaGalleryGrid items={mediaItems} />
+        <MediaGalleryGrid items={mediaData} />
       </section>
       <CTASection 
         heading="Ready to Experience the New Imo?" 

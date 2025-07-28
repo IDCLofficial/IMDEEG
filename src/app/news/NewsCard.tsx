@@ -1,19 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { NewsItem } from "./newsData";
 
 interface NewsCardProps {
-  news: {
-    img: string;
-    title: string;
-    desc: string;
-    date: string;
-    badge: string;
-  };
+  news: NewsItem;
 }
 
 export default function NewsCard({ news }: NewsCardProps) {
   return (
-    <Link href={`/news/1`} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+    <Link href={`/news/${news.slug || news.id}`} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
       <div className="relative w-full h-48">
         <Image src={news.img} alt={news.title} fill className="object-cover" />
         <span className="absolute top-3 left-3 bg-green-600 text-white text-xs px-3 py-1 rounded font-semibold">{news.badge}</span>
