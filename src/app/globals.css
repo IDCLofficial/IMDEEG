@@ -54,3 +54,32 @@
 .animate-zoom-in {
   animation: zoomIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.office-hours-scroll-container {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  overflow: hidden;
+  background-color: #232c39;
+  display: flex;
+  align-items: center;
+  z-index: 50;
+}
+
+.office-hours-scroll-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollTextLoop 20s linear infinite;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+}
+
+@keyframes scrollTextLoop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
