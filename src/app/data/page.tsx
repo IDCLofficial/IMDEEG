@@ -29,7 +29,7 @@ export default function DataPage() {
         const jsonData = await response.json();
         
         // Filter out entries with null names and clean the data
-        const cleanData = jsonData.filter((item: any) => 
+        const cleanData = jsonData.filter((item: { NAME: string | null }) => 
           item.NAME && 
           item.NAME !== 'TOTAL 28039' && 
           item.NAME !== null && 

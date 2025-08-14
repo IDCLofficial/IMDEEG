@@ -193,8 +193,6 @@ export function DataStatsSection({ data }: DataStatsSectionProps) {
   
   // Calculate statistics
   const totalParticipants = normalizedData.length;
-  const maleCount = normalizedData.filter(item => item.GENDER === 'Male').length;
-  const femaleCount = normalizedData.filter(item => item.GENDER === 'Female').length;
   
   // Get unique normalized courses and LGAs
   const uniqueCourses = [...new Set(normalizedData.map(item => item.normalizedCourse))].filter(Boolean);
@@ -220,21 +218,11 @@ export function DataStatsSection({ data }: DataStatsSectionProps) {
         </h2>
         
         {/* Key Metrics */}
-        <div className="grid md:grid-cols-4 gap-6 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 mb-12">
           <div className="bg-[#119156]/10 p-6 rounded-lg text-center">
             <div className="text-3xl font-bold text-[#119156] mb-2">{totalParticipants.toLocaleString()}</div>
             <div className="text-[#119156] font-medium">Total Participants</div>
           </div>
-          
-          {/* <div className="bg-[#22C55E]/10 p-6 rounded-lg text-center">
-            <div className="text-3xl font-bold text-[#22C55E] mb-2">{maleCount.toLocaleString()}</div>
-            <div className="text-[#22C55E] font-medium">Male Participants</div>
-          </div>
-          
-          <div className="bg-[#00FF89]/10 p-6 rounded-lg text-center">
-            <div className="text-3xl font-bold text-[#00FF89] mb-2">{femaleCount.toLocaleString()}</div>
-            <div className="text-[#00FF89] font-medium">Female Participants</div>
-          </div> */}
           
           <div className="bg-[#119156]/20 p-6 rounded-lg text-center">
             <div className="text-3xl font-bold text-[#119156] mb-2">{uniqueLGAs.length}</div>
