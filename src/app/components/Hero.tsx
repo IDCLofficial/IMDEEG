@@ -11,8 +11,8 @@ interface HeroProps {
 
 export const Hero = ({title, caption, subtitle}: HeroProps) => {
     return(
-        <div className={`h-screen px-4 md:px-[3rem] flex flex-col justify-center bg-[url('/images/heroImage.png')] bg-cover bg-center`}>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-transparent z-0"></div>
+        <div className={`h-screen px-4 md:px-[3rem] flex flex-col justify-center bg-[url('https://mdeeg.im.gov.ng/wp-content/uploads/2023/09/IMG_2185.jpg')] bg-fill bg-center`}>
+            <div className="absolute inset-0 bg-[#1D4E0494] z-0"></div>
             <div className="relative z-10 py-10">
 
                 <motion.div 

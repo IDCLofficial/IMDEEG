@@ -14,14 +14,14 @@ export default function Home() {
     <div className="h-screen w-full bg-red-400">
       <Hero
         title="Imo State Ministry of Digital Economy and eGovernment" 
-        caption="Driving Imo&apos;s Future with Innovation & Digital Power." 
-        subtitle="The Imo State Ministry of Digital Economy and E-Government is committed to accelerating digital transformation across the state. We build a digitally empowered Imo through inclusive innovation, cutting-edge technology, and people-centered digital governance." 
+        caption="Driving Digital Transformation" 
+        subtitle="Spearheading innovative solutions for a digitally empowered society. Leading the way in e-governance, connectivity, and tech-driven progress." 
       />
       <AboutSection 
         title="About Us"
-        subtitle="Established in 2022, the Imo State Ministry of Digital Economy and E-Government (IMDEEG) is committed to accelerating digital transformation across the state. We build a digitally empowered Imo through inclusive innovation, cutting-edge technology, and people-centered digital governance."
+        subtitle="The Imo State Ministry of Digital Economy and E-Government (IMDEEG) was established in 2022 under the leadership of His Excellency, Senator Hope Uzodinma, the Governor of Imo State.   The goal of the Ministry is to transform Imo State into a digitally empowered society and a knowledge-based economy.								"
         image1="/images/homeImage1.png"
-        image2="/images/homeImage2.png"
+        image2="/images/advert_flier.png"
       />
       <AboutCommisioner 
         imgSrc="/images/commissioner.png" 

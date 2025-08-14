@@ -19,16 +19,16 @@ export default function AboutCommisioner({imgSrc, title}: AboutCommisionerProps)
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: false }}
-        className="flex flex-col md:flex-row items-center gap-8 md:gap-18 w-full px-4 md:px-[3rem]"
+        className="flex flex-col md:flex-row items-center gap-8 lg:gap-18 w-full px-4 md:px-[3rem]"
     >
             {/* Left: Commissioner Image */}
             <div className="bg-white rounded-xl shadow-lg p-2 flex-shrink-0 w-full md:w-auto flex justify-center">
-                <div className="relative w-[220px] h-[240px] md:w-[300px] md:h-[340px] lg:w-[500px] lg:h-[360px]">
+                <div className="relative w-[220px] h-[240px] md:w-[250px] lg:w-[400px] lg:h-[360px]">
                     <Image
                     src={imgSrc}
                     alt="Commissioner"
                     fill
-                    className="object-contain rounded-xl"
+                    className="object-fill rounded-xl"
                     sizes="(max-width: 768px) 220px, 320px"
                     />
                 </div>
@@ -42,7 +42,6 @@ export default function AboutCommisioner({imgSrc, title}: AboutCommisionerProps)
                 <p className="text-dark-primary-body text-base mb-6 text-justify">
                     He launched SkillUpImo, aiming to train 100,000 youths in tech skills like software development and blockchain. His work promotes smart cities, digital governance, and youth empowerment. Dr. Amadi has received awards for leadership and innovation in public service.
                 </p>
-                <AppLink href="/about-us/team/#team" label="Our Team" variant="primary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
             </div>
         </motion.div>
     </section>

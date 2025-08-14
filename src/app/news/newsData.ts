@@ -11,12 +11,12 @@ export interface NewsItem {
 export const newsData: NewsItem[] = [
   {
     id: "1",
-    title: "IMO STATE DIGITIZES PUBLIC SERVICES, UNVEILS NEW E-GOVERNMENT PORTALS",
+    title: "Public Notice: Opportunity for SkillUpImo Graduates – UNDP Jubilee Fellowship Programme",
     date: "MAY 30, 2025",
     img: "/images/homeImage1.png",
     badge: "Top News",
     desc: "From tax payments to public records, the new digital system offers citizens faster, easier access to essential services. The comprehensive e-government platform includes online tax filing, business registration, and public records access.",
-    slug: "imo-state-digitizes-public-services"
+    slug: "Opportunity-for-SkillUpImo-Graduates-UNDP-Jubilee-Fellowship-Programme"
   },
   {
     id: "2",
