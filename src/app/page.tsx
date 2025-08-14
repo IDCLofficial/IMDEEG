@@ -8,6 +8,7 @@ import Stats from "@/app/components/Stats";
 import CTASection from "@/app/components/CTASection";
 import Footer from "@/app/components/Footer";
 import Advertisement from "@/app/components/Advertisement";
+import DataSection from "@/app/components/DataSection";
 
 export default function Home() {
   return (
@@ -27,6 +28,7 @@ export default function Home() {
         imgSrc="/images/commissioner.png" 
         title="About The Commissioner" 
       />
+      <DataSection />
       <section className="w-full flex flex-col gap-8">
         <QuickLinks />
         <Advertisement />
