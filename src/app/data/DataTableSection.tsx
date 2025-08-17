@@ -49,7 +49,7 @@ export function DataTableSection({ data }: DataTableSectionProps) {
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section id="data-table" className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Table Header */}

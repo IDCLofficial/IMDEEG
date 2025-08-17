@@ -66,142 +66,222 @@ export default function DataPage() {
     }
 
     if (selectedLGA) {
-      filtered = filtered.filter(item => item.LGA === selectedLGA);
+      // Use normalized LGA names for filtering
+      filtered = filtered.filter(item => {
+        const normalizedItemLGA = normalizeLGAName(item.LGA);
+        return normalizedItemLGA === selectedLGA;
+      });
     }
+
+    // Filter out entries with invalid LGAs
+    filtered = filtered.filter(item => normalizeLGAName(item.LGA) !== null);
 
     setFilteredData(filtered);
   }, [searchTerm, selectedCourse, selectedLGA, data]);
 
-  // Function to normalize course names (same as in other components)
+  // Function to normalize course names - Comprehensive consolidation
   function normalizeCourseName(courseName: string): string {
     if (!courseName) return '';
     
     const normalized = courseName.trim().toLowerCase();
     
-    // Computer Appreciation variations
-    if (normalized.includes('computer') && (normalized.includes('appreciation') || normalized.includes('apprec'))) {
+    // Computer Appreciation - consolidate all computer basics
+    if (normalized.includes('computer') || 
+        normalized.includes('compute') ||
+        normalized.includes('intro to computer') ||
+        normalized.includes('intro to compute') ||
+        normalized.includes('computer appreciation') ||
+        normalized.includes('computer app') ||
+        normalized.includes('im ogo') ||
+        normalized.includes('intro to comp')) {
       return 'Computer Appreciation';
     }
     
-    // Introduction to Computer variations
-    if (normalized.includes('intro') && normalized.includes('computer')) {
-      return 'Introduction to Computer';
+    // Graphics Design - consolidate all graphics variations
+    if (normalized.includes('graphics') || 
+        normalized.includes('graphic design') ||
+        normalized.includes('graphics design') ||
+        normalized.includes('product design')) {
+      return 'Graphics Design';
     }
     
-    // Digital Marketing variations
-    if (normalized.includes('digital') && normalized.includes('marketing')) {
-      return 'Digital Marketing';
-    }
-    
-    // Graphic Design variations
-    if (normalized.includes('graphic') || normalized.includes('graphics')) {
-      if (normalized.includes('ii') || normalized.includes('2')) {
-        return 'Graphic Design II';
-      }
-      return 'Graphic Design';
-    }
-    
-    // Video/Photo Editing variations
+    // Video & Photo Editing - consolidate all video/photo variations
     if ((normalized.includes('video') || normalized.includes('photo') || normalized.includes('picture')) && 
-        (normalized.includes('edit') || normalized.includes('editing'))) {
+        normalized.includes('editing')) {
       return 'Video & Photo Editing';
     }
     
-    // Programming variations
-    if (normalized.includes('programming') || normalized.includes('programme')) {
+    // Also catch standalone video/photo editing terms
+    if (normalized.includes('video editing') || 
+        normalized.includes('photo editing') ||
+        normalized.includes('picture editing')) {
+      return 'Video & Photo Editing';
+    }
+    
+    // Programming - consolidate all programming variations including gamification
+    if (normalized.includes('programming') || 
+        normalized.includes('programme') ||
+        normalized.includes('program') ||
+        normalized.includes('intro to programming') ||
+        normalized.includes('intro into programming') ||
+        normalized.includes('intro to programme') ||
+        normalized.includes('intro to comp') ||
+        normalized.includes('gamification') ||
+        normalized.includes('simulation')) {
       return 'Introduction to Programming';
     }
     
-    // Cybersecurity variations
-    if (normalized.includes('cyber') || normalized.includes('security')) {
-      return 'Cybersecurity';
-    }
-    
-    // Project Management variations
-    if (normalized.includes('project') && normalized.includes('management')) {
-      return 'Project Management';
-    }
-    
-    // Data Analytics variations
-    if (normalized.includes('data') && (normalized.includes('analytics') || normalized.includes('analysis'))) {
+    // Data Analytics - consolidate all data variations
+    if (normalized.includes('data') && 
+        (normalized.includes('analytics') || normalized.includes('analysis') || normalized.includes('analystics'))) {
       return 'Data Analytics';
     }
     
-    // UI/UX variations
-    if (normalized.includes('ui') || normalized.includes('ux')) {
+    // CCTV - consolidate all CCTV variations
+    if (normalized.includes('cctv') || 
+        normalized.includes('satellite') ||
+        normalized.includes('satelite') ||
+        normalized.includes('installation')) {
+      return 'CCTV & Satellite Installation';
+    }
+    
+    // Cybersecurity - consolidate all security variations
+    if (normalized.includes('cyber') || 
+        normalized.includes('security') ||
+        normalized.includes('cybersecurity')) {
+      return 'Cybersecurity';
+    }
+    
+    // UI/UX - consolidate all UI/UX variations
+    if (normalized.includes('ui') || 
+        normalized.includes('ux') ||
+        normalized.includes('desi')) {
       return 'UI/UX Design';
     }
     
-    // Mobile App Development variations
-    if (normalized.includes('mobile') && normalized.includes('app')) {
-      return 'Mobile App Development';
+    // Project Management - consolidate all project variations
+    if (normalized.includes('project') && 
+        (normalized.includes('management') || normalized.includes('mangment') || normalized.includes('mangement') || normalized.includes('development'))) {
+      return 'Project Management';
     }
     
-    // Front-end Development variations
-    if (normalized.includes('front') && (normalized.includes('end') || normalized.includes('end'))) {
-      return 'Front-end Development';
-    }
-    
-    // Back-end Development variations
-    if (normalized.includes('back') && (normalized.includes('end') || normalized.includes('end'))) {
-      return 'Back-end Development';
-    }
-    
-    // Content Development variations
+    // Content Development
     if (normalized.includes('content') && normalized.includes('development')) {
       return 'Content Development';
     }
     
-    // Phone Repair variations
-    if (normalized.includes('phone') && (normalized.includes('repair') || normalized.includes('maintenance'))) {
-      return 'Phone Repair & Maintenance';
+    // Frontend Development
+    if (normalized.includes('frontend') || 
+        normalized.includes('front end') ||
+        normalized.includes('front-end')) {
+      return 'Frontend Development';
     }
     
-    // LAN Networking variations
-    if (normalized.includes('lan') || (normalized.includes('network') && !normalized.includes('social'))) {
-      return 'LAN Networking';
-    }
-    
-    // Entrepreneurship variations
-    if (normalized.includes('entrepreneur') || normalized.includes('business')) {
-      return 'Entrepreneurship & Business Innovation';
-    }
-    
-    // CCTV variations
-    if (normalized.includes('cctv') || normalized.includes('satellite')) {
-      return 'CCTV & Satellite Installation';
-    }
-    
-    // Car Tracking variations
-    if (normalized.includes('car') && normalized.includes('track')) {
-      return 'Car Tracking';
-    }
-    
-    // Web Development variations
-    if (normalized.includes('web') && normalized.includes('development')) {
-      return 'Web Development';
-    }
-    
-    // AI variations
-    if (normalized.includes('ai') || normalized.includes('artificial') || normalized.includes('intelligence')) {
+    // AI - consolidate all AI variations
+    if (normalized.includes('ai') || 
+        normalized.includes('artificial') ||
+        normalized.includes('intelligence') ||
+        normalized.includes('prompt') ||
+        normalized.includes('no code')) {
       if (normalized.includes('prompt')) {
         return 'AI Prompt Engineering';
       }
       return 'Artificial Intelligence';
     }
     
-    // Blockchain variations
-    if (normalized.includes('blockchain') || normalized.includes('web3')) {
-      return 'Blockchain Technology';
+    // LAN Networking - consolidate all networking variations
+    if (normalized.includes('lan') || 
+        normalized.includes('networking') ||
+        normalized.includes('network')) {
+      return 'LAN Networking';
     }
     
-    // Cloud Engineering variations
+    // Mobile App Development
+    if (normalized.includes('mobile') || 
+        normalized.includes('mobille') ||
+        normalized.includes('mobile app') ||
+        normalized.includes('mobile development')) {
+      return 'Mobile App Development';
+    }
+    
+    // Car Tracking - consolidate all car tracking variations
+    if (normalized.includes('car') && 
+        (normalized.includes('track') || normalized.includes('tracker'))) {
+      return 'Car Tracking';
+    }
+    
+    // Phone Repair - consolidate all phone repair variations
+    if (normalized.includes('phone') || 
+        normalized.includes('phonr') ||
+        normalized.includes('repair') ||
+        normalized.includes('maintenance') ||
+        normalized.includes('hardware')) {
+      return 'Phone Repair & Maintenance';
+    }
+    
+    // Entrepreneurship - consolidate all business variations
+    if (normalized.includes('entrepreneur') || 
+        normalized.includes('business') ||
+        normalized.includes('innovation') ||
+        normalized.includes('leadership')) {
+      if (normalized.includes('business') && normalized.includes('innovation')) {
+        return 'Business Innovation and Entrepreneurship';
+      }
+      if (normalized.includes('leadership')) {
+        return 'Leadership & Innovation';
+      }
+      return 'Entrepreneurship';
+    }
+    
+    // Backend Development
+    if (normalized.includes('backend') || 
+        normalized.includes('back end') ||
+        normalized.includes('back-end')) {
+      return 'Backend Development';
+    }
+    
+    // Web Development - consolidate all web and internet basics
+    if (normalized.includes('web') && normalized.includes('development')) {
+      return 'Web Development';
+    }
+    
+    // Also merge internet basics into web development
+    if (normalized.includes('intro to internet') || 
+        normalized.includes('internet basics')) {
+      return 'Web Development';
+    }
+    
+    // Cloud Engineering - consolidate all cloud and IoT
     if (normalized.includes('cloud') && normalized.includes('engineering')) {
       return 'Cloud Engineering';
     }
     
-    // Virtual Assistant variations
-    if (normalized.includes('virtual') && (normalized.includes('assistant') || normalized.includes('assist'))) {
+    // Also merge IoT into cloud engineering
+    if (normalized.includes('internet of things') || 
+        normalized.includes('iot')) {
+      return 'Cloud Engineering';
+    }
+    
+    // Blockchain - consolidate all blockchain variations
+    if (normalized.includes('blockchain') || 
+        normalized.includes('web3') ||
+        normalized.includes('fintech')) {
+      if (normalized.includes('fintech')) {
+        return 'Financial Technology';
+      }
+      return 'Blockchain Technology';
+    }
+    
+    // Fibre Network
+    if (normalized.includes('fibre') || 
+        normalized.includes('fiber') ||
+        normalized.includes('splicing')) {
+      return 'Fibre Network Implementation';
+    }
+    
+    // Virtual Assistant - consolidate all virtual assistance variations
+    if (normalized.includes('virtual') && 
+        (normalized.includes('assistant') || normalized.includes('assitance') || normalized.includes('assistance') || normalized.includes('assitant'))) {
       return 'Virtual Assistant';
     }
     
@@ -215,35 +295,77 @@ export default function DataPage() {
       return 'Scratch Programming';
     }
     
-    // Leadership
-    if (normalized.includes('leadership')) {
-      return 'Leadership & Innovation';
-    }
-    
-    // Fintech
-    if (normalized.includes('fintech')) {
-      return 'Financial Technology';
-    }
-    
-    // IoT
-    if (normalized.includes('iot') || normalized.includes('internet of things')) {
-      return 'Internet of Things (IoT)';
-    }
-    
-    // Gamification
-    if (normalized.includes('gamification')) {
-      return 'Gamification & Simulation';
-    }
-    
-    // Fibre Network
-    if (normalized.includes('fibre') || normalized.includes('fiber')) {
-      return 'Fibre Network Implementation';
-    }
-    
-    // If no match found, return the original course name with proper capitalization
+    // If no specific pattern matches, return the original with proper capitalization
     return courseName.trim().replace(/\w\S*/g, (txt) => 
       txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
+  }
+
+  // Function to normalize LGA names - Only official Imo State LGAs
+  function normalizeLGAName(lgaName: string): string | null {
+    if (!lgaName) return null;
+    
+    const normalized = lgaName.trim().toLowerCase();
+    
+    // Official Imo State LGAs (27 total)
+    const officialImoLGAs: { [key: string]: string } = {
+      // Owerri Zone
+      'owerri municipal': 'Owerri Municipal',
+      'owerri north': 'Owerri North',
+      'owerri west': 'Owerri West',
+      
+      // Orlu Zone
+      'orlu': 'Orlu',
+      'orlu west': 'Orlu West',
+      'orlu east': 'Orlu East',
+      'orlu north': 'Orlu North',
+      'orlu south': 'Orlu South',
+      
+      // Okigwe Zone
+      'okigwe': 'Okigwe',
+      'okigwe north': 'Okigwe North',
+      'okigwe south': 'Okigwe South',
+      
+      // Mbaitoli Zone
+      'mbaitoli': 'Mbaitoli',
+      'mbaitoli east': 'Mbaitoli East',
+      'mbaitoli west': 'Mbaitoli West',
+      
+      // Ideato Zone
+      'ideato north': 'Ideato North',
+      'ideato south': 'Ideato South',
+      
+      // Mbaise Zone
+      'ahiazu mbaise': 'Ahiazu Mbaise',
+      'aboh mbaise': 'Aboh Mbaise',
+      'ezinihitte mbaise': 'Ezinihitte Mbaise',
+      'ihitte/uboma': 'Ihitte/Uboma',
+      'ihitte uboma': 'Ihitte/Uboma',
+      'isiala mbano': 'Isiala Mbano',
+      
+      // Other LGAs
+      'oguta': 'Oguta',
+      'njaba': 'Njaba',
+      'nkwere': 'Nkwerre',
+      'nwangele': 'Nwangele',
+      'isu': 'Isu',
+      'onimo': 'Onuimo',
+      'ehime mbano': 'Ehime Mbano',
+      'obowo': 'Obowo',
+      'orsu': 'Orsu',
+      'ohaji/egbema': 'Ohaji/Egbema',
+      'ohaji egbema': 'Ohaji/Egbema',
+      'ikeduru': 'Ikeduru',
+      'ngor okpala': 'Ngor Okpala'
+    };
+    
+    // Check if we have a mapping for this LGA
+    if (officialImoLGAs[normalized]) {
+      return officialImoLGAs[normalized];
+    }
+    
+    // If no match found, this might be invalid data
+    return null;
   }
 
   if (loading) {
