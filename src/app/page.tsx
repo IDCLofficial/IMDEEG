@@ -10,11 +10,9 @@ import CTASection from "@/app/components/CTASection";
 import Footer from "@/app/components/Footer";
 import Advertisement from "@/app/components/Advertisement";
 import { getNewsList } from "./news/newsList";
-import { NewsPost } from "../../lib/types";
 import { Suspense } from "react";
 
 export default async function Home() {
-  const newsList = await getNewsList();
   return (
     <div className="h-screen w-full bg-red-400">
       <Hero
