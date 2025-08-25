@@ -50,7 +50,7 @@ export default function NewsSidebar({
               aria-pressed={selectedFilter === cat.fields.category_name}
             >
               <span>{cat.fields.category_name}</span>
-              <span>{cat.fields.category_name}</span>
+              {/* <span>{cat.fields.category_name}</span> */}
             </button>
           ))}
         </div>
