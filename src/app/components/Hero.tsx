@@ -11,8 +11,8 @@ interface HeroProps {
 
 export const Hero = ({title, caption, subtitle}: HeroProps) => {
     return(
-        <div className={`h-screen px-4 md:px-[3rem] flex flex-col justify-center bg-[url('https://mdeeg.im.gov.ng/wp-content/uploads/2023/09/IMG_2185.jpg')] bg-fill bg-center`}>
-            <div className="absolute inset-0 bg-[#1D4E0494] z-0"></div>
+        <div className={`h-screen px-4 md:px-[3rem] flex flex-col justify-center bg-[url('/images/heroImg.jpg')] bg-fill bg-center`}>
+            <div className="absolute inset-0 bg-black/50 z-0"></div>
             <div className="relative z-10 py-10">
 
                 <motion.div 
@@ -21,10 +21,10 @@ export const Hero = ({title, caption, subtitle}: HeroProps) => {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="w-full md:w-[60%] flex flex-col gap-4"
+                    className="w-full md:w-[75%] flex flex-col gap-2"
                 >
                     <Title label={title}/>
-                    <h1 className="text-2xl md:text-[3rem] font-bold text-white leading-tight">{caption}</h1>
+                    <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">{caption}</h1>
                     <p className="text-[1rem] font-light leading-[1.5] text-white">
                         {subtitle}
                     </p>

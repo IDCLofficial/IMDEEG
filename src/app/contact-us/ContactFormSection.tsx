@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 const ContactFormSection = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -11,12 +12,23 @@ const ContactFormSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // handle form submission (e.g., send to API)
+    setIsSubmitted(true);
+    // Reset form after submission
+    setForm({ name: "", email: "", message: "" });
+    
+    // Hide success message after 5 seconds
+    setTimeout(() => {
+      setIsSubmitted(false);
+    }, 5000);
   };
 
   return (
     <div className="bg-[#222] text-white p-8 rounded shadow-lg w-full max-w-xl mx-auto">
-      <h2 className="text-2xl font-medium mb-2">LET&apos;S TALK HERE</h2>
-      <p className="mb-6 text-gray-200 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.</p>
+      <h2 className="text-2xl font-medium mb-2">LET&rsquo;S TALK HERE</h2>
+      <p className="mb-6 text-gray-200 text-sm">Feel free to send us a message</p>
+      {isSubmitted && (
+        <p className="text-green-400 text-sm mb-4">Thank you for your message! We will get back to you soon.</p>
+      )}
       <form className="space-y-4" onSubmit={handleSubmit}>
         <input
           type="text"

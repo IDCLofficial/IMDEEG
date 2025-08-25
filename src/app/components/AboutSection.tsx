@@ -40,19 +40,19 @@ export default function AboutSection({title, subtitle, image1, image2}: AboutSec
                 <p className="text-gray-200 text-base max-w-lg text-justify">
                     {subtitle}
                 </p>
-                <AppLink href="/about" label="Learn More" variant="secondary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium hidden lg:block w-max mt-4"/>
+                <AppLink href="/about" label="Learn More" variant="secondary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium hidden hover:bg-primary-green hover:text-white hover:border-primary-green transition-all duration-300 lg:block w-max mt-4"/>
             </div>
         </div>
         {/* Right: Images */}
         <div className="flex flex-col md:flex-row items-center gap-4 lg:gap-8 w-full justify-center">
-          <div className="relative rounded-lg overflow-hidden w-full lg:w-[70%] h-[180px] md:h-[280px] max-md:hidden">
-            <Image src={image1} alt="Mandate 1" fill className="object-fill" />
+          <div className="relative rounded-lg overflow-hidden w-full lg:w-[70%] h-[200px] md:h-[280px] max-md:hidden">
+            <Image src={image1} alt="Mandate 1" fill className="object-cover h-full w-full object-[50%_40%]" />
           </div>
           <div className="relative rounded-lg overflow-hidden w-full md:w-[70%] lg:w-[335px] h-[180px] md:h-[280px] flex items-center justify-center">
-            <Image src={image2} alt="Mandate 2" fill className="object-fill" />
+            <Image src={image2} alt="Mandate 2" fill className="object-fit" />
           </div>
         </div>
-        <AppLink href="/about" label="Learn More" variant="secondary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
+        <AppLink href="/about" label="Learn More" variant="secondary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px]  rounded-[3.4px] lg:hidden font-medium"/>
       </motion.div>
     </section>
   );

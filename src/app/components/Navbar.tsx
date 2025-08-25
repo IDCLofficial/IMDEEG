@@ -23,7 +23,7 @@ export const Navbar = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
     }, []);
 
     return(
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#232c39]/20 backdrop-blur-sm' : 'bg-transparent backdrop-blur-none'}`}>
+        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#232c39]/20 backdrop-blur-sm`}>
             <nav className=" px-4 md:px-[3rem] py-[1.3rem] flex items-center justify-between w-full">
                 <div>
                     {/* <Image src="/logo.png" alt="logo" width={100} height={100} /> */}

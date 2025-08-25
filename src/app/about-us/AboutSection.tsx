@@ -21,11 +21,11 @@ export const AboutSection = ({ aboutText, imgSrc, altText }: AboutSectionProps) 
                         </p>
                     </div>
                     {/* Right Section - Image */}
-                    <div className="relative w-full lg:w-[30%] h-[220px] md:h-[500px] bg-[#F1F1F1] flex items-center justify-center">
+                    <div className="relative w-full lg:w-[30%] h-[220px] md:h-[500px] bg-[#F1F1F1] flex items-center justify-center group">
                         <Image 
                             src={imgSrc}
                             alt={altText}                       
-                            className="object-cover absolute left-0 top-0 w-full h-full md:static md:w-auto md:h-auto"
+                            className="object-cover absolute -left-1/2 top-6 w-full h-[90%] group-hover:scale-105 group-hover:shadow-md transition-all rounded-md"
                             width={400}
                             height={400}
                             priority

@@ -1,58 +1,50 @@
-"use client"
-import Image from "next/image";
-import { AppLink } from "./AppLink";
-import { motion } from "framer-motion";
+import { contentfulService } from '../../../lib/contentful';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const news = [
-  {
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY COMPLETED",
-    desc: "Over 5,000 trained in cybersecurity, UI/UX, AI — May 2025",
-    date: "30th May 2025",
-    img: "/images/homeImage1.png"
-  },
-  {
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY COMPLETED",
-    desc: "Over 5,000 trained in cybersecurity, UI/UX, AI — May 2025",
-    date: "30th May 2025",
-    img: "/images/homeImage1.png"
-  },
-  {
-    title: "SKILLUP IMO COHORT 5 GRADUATION CEREMONY COMPLETED",
-    desc: "Over 5,000 trained in cybersecurity, UI/UX, AI — May 2025",
-    date: "30th May 2025",
-    img: "/images/homeImage1.png"
-  },
-];
+export interface LatestNewsProps {
+  title: string; // The Latest News
+  subtitle?: string; // small paragraph under heading
+}
 
-export default function LatestNews() {
+export default async function LatestNews({ title, subtitle }: LatestNewsProps) {
+  const latest = await contentfulService.getBlogsByMinistry(process.env.NEXT_PUBLIC_CONTENTFUL_MINISTRY_ID!); 
   return (
-    <motion.section 
-      key="latest-news"
-      id="latest-news"
-      initial={{ opacity: 0, y: 80 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      viewport={{ once: false }}
-      className="w-full px-4 md:px-8 py-10 md:py-16 bg-white"
-    >
-      <h2 className="text-dark-primary text-xl md:text-3xl lg:text-[43px] font-medium text-center mb-8 md:mb-10">Latest News</h2>
-      <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-0 md:px-4 mb-8">
-        {news.map((item, idx) => (
-          <div key={idx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-            <div className="relative w-full h-[140px] md:h-[180px]">
-              <Image src={item.img} alt={item.title} fill className="object-cover" />
-            </div>
-            <div className="p-4 md:p-5 flex-1 flex flex-col">
-              <h3 className="text-dark-secondary text-base font-bold mb-2 uppercase leading-snug">{item.title}</h3>
-              <p className="text-dark-primary-body text-base mb-2 md:mb-4">{item.desc}</p>
-              <span className="text-dark-tertiary text-xs md:text-[15px] font-bold mt-auto">{item.date}</span>
-            </div>
-          </div>
-        ))}
+    <section className="bg-gray-50 py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Heading */}
+        <div className="text-center max-w-3xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{title}</h2>
+          {subtitle && (
+            <p className="mt-3 text-gray-600">{subtitle}</p>
+          )}
+        </div>
+
+        {/* Cards */}
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {latest.slice(0, 3).map((post) => (
+            <article key={post.sys.id} className="bg-white rounded-lg shadow-sm ring-1 ring-gray-200 overflow-hidden">
+              <div className="relative aspect-[16/10] w-full">
+                <Image src={`https:${post.fields.featuredImage?.fields.file.url}`} alt={post.fields.title} fill sizes="(min-width:1024px) 400px, 100vw" className="object-cover" />
+              </div>
+              <div className="p-5">
+                <h3 className="text-[18px] font-extrabold text-gray-900 leading-snug">
+                  {post.fields.title}
+                </h3>
+                <div className="mt-2 text-xs text-gray-500">
+                  {post.sys.createdAt} • {post.fields.category.fields.category_name}
+                </div>
+                <p className="mt-3 text-sm text-gray-600 line-clamp-3">{post.fields.content.content[0].content[0].value}</p>
+                <div className="mt-4">
+                  <Link href={`/news/${post.sys.id}`} className="text-red-600 font-semibold hover:underline">
+                    Read More
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
-      <div className="flex justify-center">
-        <AppLink href="/news" label="See More" variant="primary" className="border-1 border-primary-green text-[15px] px-[2rem] py-[12px] rounded-[3.4px] font-medium"/>
-      </div>
-    </motion.section>
+    </section>
   );
-} 
+}

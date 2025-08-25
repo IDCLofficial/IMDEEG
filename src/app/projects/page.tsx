@@ -1,16 +1,23 @@
 import ProjectHeroSection from "./ProjectHeroSection";
-import SkillUpSection from "./SkillUpSection";
-import DigitalAgendaSection from "./DigitalAgendaSection";
 import Footer from "../components/Footer";
 import CTASection from "../components/CTASection";
+import ProjectsSection from "./ProjectsSection";
+import { getProject } from "./projects";
+import { Project } from "../../../lib/types";
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const projects = await getProject()
+
   return (
     <div className="bg-white">
       <ProjectHeroSection />
-      <SkillUpSection />
-      <DigitalAgendaSection />
-      <CTASection heading="Ready to Experience the New Imo?" subtext="Discover our vision for an inclusive, empowered, and connected state." buttonLabel="Contact Us" buttonHref="/contact-us" />
+      <ProjectsSection projects={projects as unknown as Project[]} />
+      <CTASection 
+        heading="Ready to Experience the New Imo?"
+        subtext="Discover our vision for an inclusive, empowered, and connected state."
+        buttonLabel="Contact Us"
+        buttonHref="/contact-us"
+      />
       <Footer />
     </div>
   );
