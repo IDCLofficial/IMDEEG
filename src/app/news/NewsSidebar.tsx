@@ -85,7 +85,7 @@ export default function NewsSidebar({
                 </div>
                 <div>
                   <div className="text-xs md:text-[14px] font-medium leading-tight line-clamp-2">{news.title}</div>
-                  <div className="text-[10px] text-gray-500 mt-1">{news.badge.fields.category_name}</div>
+                  <div className="text-[10px] text-gray-500 mt-1">{news.badge?.fields?.category_name}</div>
                 </div>
               </Link>
             </li>
