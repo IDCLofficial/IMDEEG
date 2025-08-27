@@ -35,16 +35,39 @@ export default function FeaturedPartners() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: false }}
-        className="flex flex-col items-center gap-4 md:gap-6"
+        className="flex flex-col items-center gap-4 md:gap-6 overflow-hidden"
       >
-        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-          {partners.map((partner, idx) => (
-            <div key={idx} className="bg-white rounded-lg shadow p-3 md:p-6 flex items-center justify-center w-[100px] h-[50px] md:w-[150px] md:h-[80px]">
-              <Image src={partner.src} alt={partner.alt} width={80} height={40} className="object-contain md:w-[120px] md:h-[60px]" />
+        <div className="overflow-hidden inline-flex animate-scroll">
+          {partners.concat(partners).map((partner, idx) => (
+            <div key={idx} className="inline-block lg:mx-8 mx-4">
+              <div className="bg-white rounded-lg shadow p-4 flex items-center justify-center w-[150px] h-[80px]">
+                <Image
+                  src={partner.src}
+                  alt={partner.alt}
+                  width={60}
+                  height={60}
+                  className="object-contain inline-block align-middle h-full w-full"
+                />
+              </div>
             </div>
           ))}
         </div>
       </motion.div>
+
+      <style jsx>{`
+        .animate-scroll {
+          animation: scroll 25s linear infinite;
+        }
+
+        @keyframes scroll {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </section>
   );
 } 

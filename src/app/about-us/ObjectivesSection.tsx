@@ -50,7 +50,7 @@ export const ObjectivesSection = () => {
         <section className="w-full bg-white py-10 md:py-20">
             <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col gap-24">
                 <div>
-                    <h2 className="text-xl md:text-[43px] font-medium text-center mb-8">
+                    <h2 className="text-2xl md:text-[43px] font-medium text-center mb-8">
                         Mission and Vision
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
@@ -60,7 +60,7 @@ export const ObjectivesSection = () => {
                                     <h3 className="font-medium text-lg md:text-[22px] mb-2 md:mb-3">
                                         {objective.title}
                                     </h3>
-                                    <p className="text-dark-primary-body text-sm md:text-[1rem]">
+                                    <p className="text-dark-primary-body text-base md:text-[1rem]">
                                         {objective.description}
                                     </p>
                                 </div>
@@ -83,7 +83,7 @@ export const ObjectivesSection = () => {
                                     <h3 className="font-medium text-lg md:text-[22px] mb-2 md:mb-3">
                                         {objective.title}
                                     </h3>
-                                    <p className="text-dark-primary-body text-sm md:text-[1rem]">
+                                    <p className="text-dark-primary-body text-base md:text-[1rem]">
                                         {objective.description}
                                     </p>
                                 </div>

@@ -84,7 +84,7 @@ export default function Footer() {
   const ministryName = 'Ministry of Digital Economy and eGovernment';
   const description = "Positioning Imo as Nigeria’s leading digital economy state by deploying \ne‑government platforms, building smart city infrastructure, and expanding connectivity across communities. Through SkillUp Imo, we equip youths and entrepreneurs with in‑demand digital skills, creating jobs, powering startups, and delivering faster, more transparent public services for all Imolites.";
   const contactInfo: ContactInfo[] = [
-    { icon: <FiMapPin className="h-5 w-5" />, text: 'Ministry of Digital Economy & E-Government, 28 Egbu Road, Owerri, Imo State, Nigeria.' },
+    { icon: <FiMapPin className="h-5 w-5" />, text: 'Ministry of Digital Economy & E-Government, 28 Egbu Road.' },
     { icon: <FiMail className="h-5 w-5" />, text: 'info@mdeeg.im.gov.ng' },
     { icon: <FiPhone className="h-5 w-5" />, text: '+234 913 027 0514' },
   ];
@@ -113,87 +113,19 @@ export default function Footer() {
     }
 }, [success]);
   return (
-    // <footer className="bg-[#06163A] text-white">
-    //   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    //     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-    //       {/* Company Info */}
-    //       <div className="space-y-6">
-    //         <div className="flex items-center gap-2">
-    //           <Image
-    //             src={logo}
-    //             alt="Company Logo"
-    //             width={120}
-    //             height={40}
-    //             className="h-10 w-auto"
-    //           />
-    //           <span className='text-white/70'>Imo state {ministryName}</span>
-    //         </div>
-    //         <p className="text-white/70">
-    //           {description}
-    //         </p>
-            
-    //         <div className="space-y-4 mt-6">
-    //           {contactInfo.map((info, index) => (
-    //             <ContactItem key={index} icon={info.icon} text={info.text} />
-    //           ))}
-    //         </div>
-    //       </div>
-    //       {/* Links Columns */}
-    //       {columns.map((column) => (
-    //         <div key={column.title}>
-    //           <h3 className="text-lg font-semibold mb-6">{column.title}</h3>
-    //           <ul className="space-y-3">
-    //             {column.links.map((link) => (
-    //               <li key={link.name}>
-    //                 <Link 
-    //                   href={link.href}
-    //                   className="text-white/70 hover:text-white transition-colors duration-200"
-    //                 >
-    //                   {link.name}
-    //                 </Link>
-    //               </li>
-    //             ))}
-    //           </ul>
-    //         </div>
-    //       ))}
-    //       <div className="flex flex-col space-x-4 pt-4">
-    //         <h3 className="text-lg font-semibold mb-6">Social Links</h3>
-    //         {socialLinks.map((social) => (
-    //           <a 
-    //             key={social.name}
-    //             href={social.href}
-    //             className="text-white/70 hover:text-white transition-colors duration-200"
-    //             aria-label={social.name}
-    //           >
-    //             {social.icon}
-    //           </a>
-    //         ))}
-    //       </div>
-    //     </div>
-        
-    //     {/* Copyright */}
-    //     <div className="border-t border-white/10 mt-16 pt-8">
-    //       <p className="text-center text-white/60 text-sm">
-    //         {copyright}
-    //       </p>
-    //     </div>
-    //   </div>
-    // </footer>
-
-
     <footer className="w-full bg-white pt-10 px-4 lg:px-18">
           <div className="mx-auto px-4 flex flex-col md:flex-row justify-between gap-8 pb-8">
               {/* Logo and Description */}
               <Reveal direction="up">
                 <div className="flex-1 flex flex-col gap-3">
                   <div className="flex items-center gap-3 mb-2">
-                      <Image src={logo} alt="Imo State Logo" width={40} height={40} />
-                      <span className="font-semibold text-sm text-gray-900 leading-tight">
+                      <Image src={logo} alt="Imo State Logo" width={50} height={50} />
+                      <span className="font-semibold text-lg text-gray-900 leading-tight">
                       Imo State Ministry<br />
                       of {ministryName}
                       </span>
                   </div>
-                  <p className="text-xs text-gray-600 max-w-xs">
+                  <p className="text-gray-600 max-w-xs text-sm">
                       {description}
                   </p>
                 </div>

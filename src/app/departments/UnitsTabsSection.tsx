@@ -82,7 +82,7 @@ export default function UnitsTabsSection() {
   return (
     <section className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-8 py-16 px-4">
       {/* Tabs */}
-      <div className="w-full md:w-1/4 border-r pr-4">
+      <div className="w-full md:w-1/4 md:border-r pr-4 no-scrollbar">
         <ul className="space-y-2 flex md:flex-col gap-2 overflow-x-auto">
           {departments.map((dept, idx) => (
             <li key={dept.name}>

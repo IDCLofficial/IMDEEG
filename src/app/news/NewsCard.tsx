@@ -5,7 +5,7 @@ import { NewsPost } from "../../../lib/types";
 
 export default function NewsCard({ news }: { news: NewsPost }) {
   return (
-    <Link href={`/news/${news.fields.title}`} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+    <Link href={`/news/${news.fields.slug}`} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
       <div className="relative w-full h-48">
         <Image src={`https:${String(news.fields.featuredImage?.fields.file.url)}` || ""} alt={news.fields.title} width={1280} height={1280} className="object-cover h-full w-full object-[50%_20%]" />
         <span className="absolute

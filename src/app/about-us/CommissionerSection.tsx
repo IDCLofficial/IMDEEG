@@ -26,14 +26,14 @@ export const CommissionerSection = ({ imgSrc, altText, commissionerName, commiss
                         </div>
                     </div>
                     {/* Right Section - Text Content */}
-                    <div className="w-full lg:w-auto space-y-4 md:space-y-6 flex flex-col items-start lg:items-start text-center lg:text-left">
+                    <div className="w-full lg:w-auto space-y-4 md:space-y-6 flex flex-col items-start lg:items-start lg:text-left">
                         <div>
                             <h2 className="text-xl md:text-[43px] font-medium text-dark-primary leading-tight">
                                 Hon. Commissioner <br/>
                                 {commissionerName}
                             </h2>
                         </div>
-                        <p className="text-dark-primary-body text-sm md:text-[1rem] leading-relaxed text-justify md:text-left">
+                        <p className="text-dark-primary-body text-base md:text-[1rem] leading-normal text-justify md:text-left">
                             {commissionerDescription}
                         </p>
                         <AppLink label="Learn More" href="/about-us/team" variant="primary"/>

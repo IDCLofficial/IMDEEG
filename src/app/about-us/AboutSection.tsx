@@ -16,7 +16,7 @@ export const AboutSection = ({ aboutText, imgSrc, altText }: AboutSectionProps) 
                         <h2 className="text-xl md:text-[43px] font-medium text-black mb-4 md:mb-8">
                             About the Ministry
                         </h2>
-                        <p className="text-dark-primary-body text-sm md:text-[1rem] leading-7 md:leading-8">
+                        <p className="text-dark-primary-body text-base md:text-[1rem] leading-7 md:leading-8">
                             {aboutText}
                         </p>
                     </div>
@@ -25,7 +25,7 @@ export const AboutSection = ({ aboutText, imgSrc, altText }: AboutSectionProps) 
                         <Image 
                             src={imgSrc}
                             alt={altText}                       
-                            className="object-cover absolute -left-1/2 top-6 w-full h-[90%] group-hover:scale-105 group-hover:shadow-md transition-all rounded-md"
+                            className="object-cover lg:absolute lg:-left-1/2 lg:top-6 w-full h-full lg:h-[90%] group-hover:scale-105 group-hover:shadow-md transition-all rounded-md"
                             width={400}
                             height={400}
                             priority

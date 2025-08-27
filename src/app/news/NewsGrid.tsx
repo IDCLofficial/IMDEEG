@@ -1,13 +1,23 @@
 import NewsCard from "./NewsCard";
-import { NewsPost } from "../../../lib/types";
+import { getNewsListByCategoryId, getNewsListByMinistry } from "./newsList";
 
-export default async function NewsGrid({newsList}: {newsList: NewsPost[]}) {
-  if(newsList.length === 0) return(
-    <div className="text-center text-dark-primary-body">There is no News available at this time, please check again later.</div>
+export interface paramsProps{
+  filter: string;
+  id:string
+}
+
+export default async function NewsGrid({params}:{params:paramsProps}) {
+  const filteredNewsList = await(() =>{
+    if(params) return getNewsListByCategoryId(params.id, 1)
+    return getNewsListByMinistry()
+  })()
+  
+  if(filteredNewsList?.length === 0) return(
+    <div className="text-center text-dark-primary-body">No news in this cateogry.</div>
   )
   return (
     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-      {newsList.map((item, idx) => (
+      {filteredNewsList?.map((item, idx) => (
         <NewsCard news={item} key={idx} />
       ))}
     </div>

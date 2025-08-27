@@ -3,16 +3,17 @@ import Reveal from "@/app/components/Reveal";
 import AboutSection from "@/app/components/AboutSection";
 import AboutCommisioner from "@/app/components/AboutCommisioner";
 import QuickLinks from "@/app/components/QuickLinks";
-import LatestNews from "@/app/components/LatestNews";
 import FeaturedPartners from "@/app/components/FeaturedPartners";
 import Stats from "@/app/components/Stats";
 import CTASection from "@/app/components/CTASection";
 import Footer from "@/app/components/Footer";
 import Advertisement from "@/app/components/Advertisement";
-import { getNewsList } from "./news/newsList";
-import { Suspense } from "react";
+import { LatestNews } from "./news/[slug]/LatestNews";
+import { getNewsListByCategoryId } from "./news/newsList";
+import { NewsPost } from "../../lib/types";
 
 export default async function Home() {
+  const latestNewsList = await getNewsListByCategoryId("2XfChLa0hKTuDeJOciEZTI", 1);
   return (
     <div className="h-screen w-full bg-red-400">
       <Hero
@@ -38,11 +39,9 @@ export default async function Home() {
         <section className="w-full flex flex-col gap-8">
           <QuickLinks />
           <Advertisement />
-          <Suspense fallback={<div>Loading...</div>}>
-            <LatestNews
-              title="Latest News"
-            />
-          </Suspense>
+          {latestNewsList.length !== 0 && latestNewsList.map((item, idx) => (
+            <LatestNews key={idx} item={item as unknown as NewsPost} />
+          ))}
         </section>
       </Reveal>
       <Reveal variant="fadeUp" delay={0.35}>

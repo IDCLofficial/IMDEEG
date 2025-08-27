@@ -60,7 +60,7 @@ export const StructuresSection = ({imgSrc}: StructuresSectionProps) => {
                                 <h3 className="font-bold text-base md:text-[22px] text-dark-primary mb-2 md:mb-3">
                                     {department?.title}
                                 </h3>
-                                <p className="text-dark-secondary-body text-sm md:text-[16px]">
+                                <p className="text-dark-secondary-body md:text-[16px]">
                                     {department?.description}
                                 </p>
                             </div>
