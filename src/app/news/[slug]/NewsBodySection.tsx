@@ -25,7 +25,7 @@ const NewsBodySection: React.FC<NewsBodySectionProps> = ({ news }) => (
       </div>
       <div className="text-center">
         <h1 className="text-2xl md:text-3xl font-bold mb-2">{news?.fields?.title}</h1>
-        <SocialShareBar date={news?.sys?.createdAt} />
+        <SocialShareBar date={news?.sys?.createdAt} url={`https://mdeeg.vercel.app/news/${news?.fields.slug}`}/>
       </div>
       <MarkdownRenderer content={news?.fields?.fullNews} />
     </div>
