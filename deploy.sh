@@ -88,3 +88,4 @@ echo "🔍 Check status with:"
 echo "- PM2: pm2 status"
 echo "- Nginx: systemctl status nginx"
 echo "- Logs: pm2 logs ministry-digital-economy"
+
