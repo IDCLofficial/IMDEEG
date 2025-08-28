@@ -7,7 +7,7 @@ module.exports = {
     production: {
       key: 'key.pem',
       user: 'ubuntu',
-      host: '3.21.165.38',
+      host: 'ministry-digital-economy',
       ref: 'origin/main',
       repo: 'git@github.com:IDCLofficial/IMDEEG.git',
       path: '/home/ubuntu',

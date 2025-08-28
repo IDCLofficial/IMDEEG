@@ -1,0 +1,19 @@
+[Unit]
+Description=PM2 process manager
+Documentation=https://pm2.keymetrics.io/
+After=network.target
+
+[Service]
+Type=forking
+User=www-data
+Group=www-data
+PIDFile=/var/run/pm2.pid
+Restart=on-failure
+ExecStart=/usr/bin/pm2 resurrect
+ExecReload=/usr/bin/pm2 reload all
+ExecStop=/usr/bin/pm2 kill
+RestartPreventExitStatus=0
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
