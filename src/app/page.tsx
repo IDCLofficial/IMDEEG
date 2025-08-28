@@ -8,9 +8,10 @@ import Stats from "@/app/components/Stats";
 import CTASection from "@/app/components/CTASection";
 import Footer from "@/app/components/Footer";
 import Advertisement from "@/app/components/Advertisement";
-import { LatestNews } from "./news/[slug]/LatestNews";
+import DataSection from "@/app/components/DataSection";
 import { getNewsListByCategoryId } from "./news/newsList";
 import { NewsPost } from "../../lib/types";
+import { LatestNews } from "./news/[slug]/LatestNews";
 
 export default async function Home() {
   const latestNewsList = await getNewsListByCategoryId("2XfChLa0hKTuDeJOciEZTI", 1);
@@ -21,7 +22,7 @@ export default async function Home() {
         caption="Driving Digital Transformation" 
         subtitle="Positioning Imo as Nigeria’s leading digital economy state by deploying e‑government platforms, building smart city infrastructure, and expanding connectivity across communities. Through SkillUp Imo, we equip youths and entrepreneurs with in‑demand digital skills, creating jobs, powering startups, and delivering faster, more transparent public services for all Imolites." 
       />
-      <Reveal variant="fadeUp" delay={0.1}>
+              <Reveal variant="fadeUp" delay={0.1}>
         <AboutSection 
           title="About Us"
           subtitle="The Imo State Ministry of Digital Economy and E-Government (IMDEEG) was established in 2022 under the leadership of His Excellency, Senator Hope Uzodinma, the Governor of Imo State. The goal of the Ministry is to transform Imo State into a digitally empowered society and a knowledge-based economy."
@@ -34,6 +35,9 @@ export default async function Home() {
           imgSrc="/images/commissioner.png" 
           title="About The Commissioner" 
         />
+      </Reveal>
+      <Reveal variant="fadeUp" delay={0.25}>
+        <DataSection />
       </Reveal>
       <Reveal variant="fadeUp" delay={0.25}>
         <section className="w-full flex flex-col gap-8">

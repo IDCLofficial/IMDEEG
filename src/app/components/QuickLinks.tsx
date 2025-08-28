@@ -13,6 +13,12 @@ const links = [
     href: "/projects"
   },
   {
+    title: "Data",
+    desc: "Explore our digital economy data & statistics.",
+    img: "/images/digitalAgenda.png",
+    href: "/data"
+  },
+  {
     title: "Events",
     desc: "Join upcoming tech summits & training programs.",
     img: "/images/eventscover.jpg",
@@ -44,7 +50,7 @@ export default function QuickLinks() {
       className="w-full p-4 md:p-8 py-10 md:py-16 bg-white"
     >
       <h2 className="text-dark-primary text-xl md:text-[3xl] lg:text-[43px] font-medium text-center mb-8 md:mb-12">Quick Links</h2>
-      <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-0 md:px-4">
+      <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8 px-0 md:px-4">
         {links.map((link, idx) => (
           <Reveal key={link.title} variant="fadeUp" delay={0.05 * idx}>
             <div className="bg-white flex flex-col items-center h-full relative">
