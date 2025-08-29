@@ -1,6 +1,13 @@
 module.exports = {
   apps: [{
     script: 'npm start',
+    env: {
+      NODE_ENV: 'production',
+      NEXT_PUBLIC_MINISTRY_ID: '1O4HtVq7a53ckg7fk40lj3',
+      NEXT_PUBLIC_CONTENTFUL_SPACE_ID: 'g08mvfhb24ji',
+      NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN: 'yZmq2UuZ1_8XDAKpc6zdstd8XtD4vEwTc5aqK-zPU-o',
+      NEXT_PUBLIC_CONTENTFUL_PREVIEW_ACCESS_TOKEN: 'rlJ3RsWYOuYx4jdCjveT_2w5ekUNt4e14JuCHCdRfsw'
+    }
   }],
 
   deploy: {
