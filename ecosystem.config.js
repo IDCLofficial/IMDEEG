@@ -5,11 +5,11 @@ module.exports = {
 
   deploy: {
     production: {
-      key: 'key.pem',
+      key: '~/.ssh/deeg.pem',
       user: 'ubuntu',
-      host: 'ministry-digital-economy',
+      host: 'digital-economy',
       ref: 'origin/main',
-      repo: 'git@github.com:myimoapp/ministry-of-digital_economy.git',
+      repo: 'git@github.com:IDCLofficial/IMDEEG.git',
       path: '/home/ubuntu',
       'pre-deploy-local': '',
       'post-deploy': 'source ~/.nvm/nvm.sh && npm install && npm run build && pm2 reload ecosystem.config.js --env production',
