@@ -13,7 +13,6 @@ interface MediaGalleryGridProps {
 }
 
 const MediaGalleryGrid: React.FC<MediaGalleryGridProps> = ({ items}:MediaGalleryGridProps) => {
-console.log(items)
   const [query, setQuery] = useState("");
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerSrc, setViewerSrc] = useState<string>("");

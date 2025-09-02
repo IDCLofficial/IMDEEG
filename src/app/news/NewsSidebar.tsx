@@ -21,7 +21,6 @@ export default function NewsSidebar({categories}: {categories: Category[]}) {
       params.delete("id");
     }
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    console.log(id)
   };
 
   return (

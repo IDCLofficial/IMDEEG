@@ -25,10 +25,10 @@ export const Navbar = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
     return(
         <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#232c39]/20 backdrop-blur-sm`}>
             <nav className=" px-4 md:px-[3rem] py-[1.3rem] flex items-center justify-between w-full">
-                <div>
+                <div className="w-[50px] h-[50px]">
                     {/* <Image src="/logo.png" alt="logo" width={100} height={100} /> */}
                     <Link href="/">
-                        <Image src="/logo.png" alt="logo" width={40} height={40} />
+                        <Image src="/logo.png" alt="logo" width={50} height={50} className="object-contain"/>
                     </Link>
                 </div>
                 {/* Desktop NavLinks */}

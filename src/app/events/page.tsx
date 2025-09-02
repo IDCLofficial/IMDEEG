@@ -8,7 +8,7 @@ import { Events } from "../../../lib/types";
 
 export default async function EventsPage() {
   const events = await getEvents();
-  console.log(events)
+  
   return (
     <div className="bg-white">
       <EventsHeroSection />

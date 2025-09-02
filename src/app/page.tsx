@@ -43,9 +43,14 @@ export default async function Home() {
         <section className="w-full flex flex-col gap-8">
           <QuickLinks />
           <Advertisement />
-          {latestNewsList.length !== 0 && latestNewsList.map((item, idx) => (
-            <LatestNews key={idx} item={item as unknown as NewsPost} />
-          ))}
+          {latestNewsList.length !== 0 && <div className="relative w-full p-4 md:p-8 py-12 md:py-20">
+            <h2 className="text-dark-primary text-xl md:text-[3xl] lg:text-[43px] font-medium text-center mb-8 md:mb-12">Latest News</h2>
+            <div className="flex items-center justify-center gap-8">
+              {latestNewsList.map((item, idx) => (
+                <LatestNews key={idx} item={item as unknown as NewsPost} />
+              ))}
+            </div>
+          </div>}
         </section>
       </Reveal>
       <Reveal variant="fadeUp" delay={0.35}>

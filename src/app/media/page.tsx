@@ -16,9 +16,7 @@ interface MediaGalleryGridProps {
 
 export default async function MediaPage() {
   const media = await getMedia();
-  console.log(media)
   const ministries = await contentfulService.getMinistries();
-  console.log(ministries)
   return (
     <main className="min-h-screen w-full bg-[#F7F9FA] flex flex-col">
       <MediaHeroSection

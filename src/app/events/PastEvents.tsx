@@ -16,7 +16,6 @@ function isPastEvent(eventDateStr: string) {
 }
 
 export default function PastEvents({events}: {events: Events[]}) {
-    console.log(events)
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: "left" | "right") => {
