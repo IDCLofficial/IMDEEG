@@ -4,10 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import PageTransitionWrapper from "@/app/components/PageTransitionWrapper";
 import { Navbar } from "@/app/components/Navbar";
-import Sidebar from "@/app/components/Sidebar";
-import { useState } from "react";
-
-
+import Chatbot from "@/app/components/Chatbot";
 
 const satoshiFont = localFont({
   src: [
@@ -39,14 +36,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <html lang="en">
       <body
         className={`antialiased ${satoshiFont.className}`}
       >
-        <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Chatbot />
+        <Navbar />
         <PageTransitionWrapper>
           {children}
         </PageTransitionWrapper>

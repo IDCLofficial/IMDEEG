@@ -9,14 +9,16 @@ interface SidebarProps {
 const Sidebar = ({ open, onClose }: SidebarProps) => {
   if (!open) return null;
   return (
-    <>
+    <div className="fixed inset-0 z-[9998] h-screen ">
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/40 z-[99]"
+        className="fixed inset-0 bg-black/40 z-[9998] h-screen w-full"
         onClick={onClose}
       />
       {/* Sidebar */}
-      <div className="fixed top-0 right-0 h-full w-64 max-w-[80vw] bg-[#232c39] z-[100] shadow-lg flex flex-col p-6 animate-slide-in">
+      <div 
+        className="fixed z-[9999] h-screen overflow-y-auto top-0 right-0 w-64 max-w-[80vw] bg-[#232c39] shadow-lg flex flex-col p-6 animate-slide-in pointer-events-auto"
+      >
         <button
           className="absolute top-4 right-4 text-white text-2xl"
           aria-label="Close navigation menu"
@@ -37,7 +39,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
           animation: slide-in 0.3s cubic-bezier(0.4,0,0.2,1);
         }
       `}</style>
-    </>
+    </div>
   );
 };
 

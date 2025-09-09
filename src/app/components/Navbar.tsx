@@ -1,12 +1,16 @@
 'use client';
 import Link from "next/link";
-import NavLinks from "./NavLinks"
+import NavLinks from "./NavLinks";
 import { FiMenu } from "react-icons/fi";
 import Image from "next/image";
 import OfficeHours from "./OfficeHours";
 import { useState, useEffect } from "react";
+import Sidebar from "./Sidebar";
 
-export const Navbar = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
+export const Navbar = () => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    
+    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -39,12 +43,13 @@ export const Navbar = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
                 <button
                     className="md:hidden text-white text-3xl focus:outline-none"
                     aria-label="Open navigation menu"
-                    onClick={onOpenSidebar}
+                    onClick={toggleSidebar}
                     >
                     <FiMenu />
                 </button>
             </nav>
             <OfficeHours />
+            <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         </header>
     )
 }
