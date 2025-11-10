@@ -95,6 +95,7 @@
 .no-scrollbar{
   scroll-behavior: smooth;
 }
+
 @keyframes scrollTextLoop {
   0% {
     transform: translateX(0);
@@ -102,4 +103,28 @@
   100% {
     transform: translateX(-50%);
   }
+}
+@keyframes wave {
+  0%{
+    transform: rotate(-25deg);
+  }
+  100%{
+    transform: rotate(25deg);
+  }
+}
+@keyframes popup {
+  0%{
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100%{
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.wave{
+  animation: wave 2s linear 2s infinite;
+}
+.popup{
+  animation: popup 1s ease-in-out 5s once;
 }
