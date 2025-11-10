@@ -55,8 +55,8 @@ export default function Chatbot() {
   }
 
   return (
-    <div className={`fixed h-screen w-full z-70 pointer-events-none`}> 
-        <div className={`overlay absolute h-screen w-full bg-black/10 z-40 transition-all duration-100 ease-in ${showChatBox ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setShowChatBox(false)}></div>  
+    <div> 
+        <div className={`overlay fixed h-screen w-full bg-black/10 z-40 transition-all duration-100 ease-in ${showChatBox ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setShowChatBox(false)}></div>  
         <div className="fixed bottom-5 right-5 z-50">
             <div className="relative flex flex-col-reverse items-end gap-2 transition-all duration-100 ease-in">
                 {/* Floating button */}
