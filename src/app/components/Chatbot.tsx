@@ -70,65 +70,64 @@ export default function Chatbot() {
             </button>
           ) : (
                   
-                  <div
-                  className={`h-[450px] w-[300px] flex flex-col bg-white rounded-[10px] shadow transition-all ease-in-out ${
-                      showChatBox
-                      ? "opacity-100 pointer-events-auto"
-                      : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                    <button className="p-2 absolute top-2 right-2 z-[50] bg-blue-600 rounded-full h-[40px] w-[40px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out" onClick={() => setShowChatBox(!showChatBox)}>
-                        <X className="text-white" size={30}/>
-                    </button>
-                {/* Header */}
-                <div className="h-[30%] flex flex-col justify-end bg-blue-600 p-3 rounded-b-[10%] rounded-t-[10px]">
-                    <h1 className="text-white font-bold text-2xl flex items-center gap-1">
-                    Hi there! <Wave className="inline align-middle" size={32} />
-                    </h1>
-                    <p className="text-white">How can I help you today?</p>
-                </div>
+            <div
+              className={`h-[450px] w-[300px] flex flex-col bg-white rounded-[10px] shadow transition-all ease-in-out ${
+                  showChatBox
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
+              }`}
+            >
+            <button className="p-2 absolute top-2 right-2 z-[50] bg-blue-600 rounded-full h-[40px] w-[40px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out" onClick={() => setShowChatBox(!showChatBox)}>
+                <X className="text-white" size={30}/>
+            </button>
+            {/* Header */}
+            <div className="h-[30%] flex flex-col justify-end bg-blue-600 p-3 rounded-b-[10%] rounded-t-[10px]">
+                <h1 className="text-white font-bold text-2xl flex items-center gap-1">
+                Hi there! <Wave className="inline align-middle" size={32} />
+                </h1>
+                <p className="text-white">How can I help you today?</p>
+            </div>
 
-                {/* Chat body */}
-                <div
-                    ref={chatBodyRef}
-                    id="chatBody"
-                    className="flex-1 overflow-y-auto p-2 py-3 space-y-2"
-                >
-                    {messages.map((m, i) => (
-                    <div
-                        key={i}
-                        className={`p-2 rounded-lg max-w-[80%] ${
-                        m.role === "user"
-                            ? "bg-blue-100 self-end ml-auto"
-                            : m.content === "Thinking..."
-                            ? "text-gray-400 self-start animate-pulse"
-                            : "bg-gray-100 self-start"
-                        }`}
-                    >
-                        {m.content}
-                    </div>
-                    ))}
+            {/* Chat body */}
+            <div
+              ref={chatBodyRef}
+              id="chatBody"
+              className="flex-1 overflow-y-auto p-2 py-3 space-y-2"
+            >
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`p-2 rounded-lg max-w-[80%] ${
+                m.role === "user"
+                    ? "bg-blue-100 self-end ml-auto"
+                    : m.content === "Thinking..."
+                    ? "text-gray-400 self-start animate-pulse"
+                    : "bg-gray-100 self-start"
+                }`}
+              >
+                {m.content}
+              </div>
+            ))}
+            </div>
+              {/* Input */}
+              <div className="p-2 border-t border-gray-200">
+                <div className="flex items-center gap-2 border border-gray-300 rounded-[10px] p-2">
+                  <input
+                    type="text"
+                    placeholder="Ask me anything..."
+                    className="w-full outline-0"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  />
+                  <button
+                    className="rounded-full cursor-pointer flex justify-center items-center active:scale-105 transition-all ease-in-out"
+                    onClick={handleSend}
+                  >
+                    <Send size={20} />
+                  </button>
                 </div>
-
-                {/* Input */}
-                <div className="p-2 border-t border-gray-200">
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-[10px] p-2">
-                    <input
-                        type="text"
-                        placeholder="Ask me anything..."
-                        className="w-full outline-0"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    />
-                    <button
-                        className="rounded-full cursor-pointer flex justify-center items-center active:scale-105 transition-all ease-in-out"
-                        onClick={handleSend}
-                    >
-                        <Send size={20} />
-                    </button>
-                    </div>
-                </div>
+              </div>
             </div>
           )}
         </div>
