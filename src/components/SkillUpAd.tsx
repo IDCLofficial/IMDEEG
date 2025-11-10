@@ -12,11 +12,11 @@ export default function SkillUpAd() {
               The Imo State Ministry of Digital Economy and eGovernment is delighted to announce the commencement of registrations for SkillUp Imo Cohort 4. This initiative continues our commitment to empowering Imo youths with cutting-edge digital skills and creating sustainable employment opportunities in the digital economy.  
             </p>
           </div>
-          <div className="hidden md:block">
+          <div className="block">
             <div className="bg-white p-4 rounded-lg border border-white/20 flex flex-col items-center">
               <img src="/images/myimoapp.svg" alt="myimoapp" />
               <div className="pt-2">
-                <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 font-semibold">
+                <Button asChild className=" text-blue-700 bg-blue-50 font-semibold">
                   <Link href="https://www.myimoapp.com" target="_blank" rel="noopener noreferrer">
                     Register Now in myimoapp
                   </Link>
