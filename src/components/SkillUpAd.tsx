@@ -17,7 +17,7 @@ export default function SkillUpAd() {
               <img src="/images/myimoapp.svg" alt="myimoapp" />
               <div className="pt-2">
                 <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 font-semibold">
-                  <Link href="https://myimoapp.com" target="_blank" rel="noopener noreferrer">
+                  <Link href="https://www.myimoapp.com" target="_blank" rel="noopener noreferrer">
                     Register Now in myimoapp
                   </Link>
                 </Button>
