@@ -57,26 +57,25 @@ export default function Chatbot() {
   return (
     <div> 
         <div className={`overlay fixed h-screen w-full bg-black/10 z-40 transition-all duration-100 ease-in ${showChatBox ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setShowChatBox(false)}></div>  
-        <div className="fixed bottom-5 right-5 z-50">
-            <div className="relative flex flex-col-reverse items-end gap-2 transition-all duration-100 ease-in">
-                {/* Floating button */}
-                {!showChatBox && <button
-                className="p-2 relative z-[50] bg-blue-600 rounded-full h-[60px] w-[60px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out"
-                onClick={() => setShowChatBox(!showChatBox)}
-                >
-                <MessageCircleIcon
-                    className={`text-white transition-all`}
-                    size={30}
-                />
-                </button>}
-
-                {/* Chat window */}
-                <div
-                className={`h-[450px] w-[300px] flex flex-col bg-white rounded-[10px] shadow transition-all ease-in-out ${
-                    showChatBox
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                }`}
+        <div className="fixed bottom-5 right-5 z-50 h-auto">
+          {!showChatBox ? (
+            <button
+              className="p-2 relative z-[50] bg-blue-600 rounded-full h-[60px] w-[60px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out"
+              onClick={() => setShowChatBox(!showChatBox)}
+              >
+              <MessageCircleIcon
+                  className={`text-white transition-all`}
+                  size={30}
+              />
+            </button>
+          ) : (
+                  
+                  <div
+                  className={`h-[450px] w-[300px] flex flex-col bg-white rounded-[10px] shadow transition-all ease-in-out ${
+                      showChatBox
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
                 >
                     <button className="p-2 absolute top-2 right-2 z-[50] bg-blue-600 rounded-full h-[40px] w-[40px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out" onClick={() => setShowChatBox(!showChatBox)}>
                         <X className="text-white" size={30}/>
@@ -130,8 +129,8 @@ export default function Chatbot() {
                     </button>
                     </div>
                 </div>
-                </div>
             </div>
+          )}
         </div>
     </div>
   )

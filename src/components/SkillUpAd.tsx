@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 
 export default function SkillUpAd() {
   return (
-    <div className="bg-blue-600 p-6 md:p-8 text-white shadow-lg">
+    <div className="bg-primary-green p-6 md:p-8 text-white shadow-lg">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="space-y-3 flex-1">
@@ -16,8 +16,8 @@ export default function SkillUpAd() {
             <div className="bg-white p-4 rounded-lg border border-white/20 flex flex-col items-center">
               <img src="/images/myimoapp.svg" alt="myimoapp" />
               <div className="pt-2">
-                <Button asChild className=" text-blue-700 bg-blue-50 font-semibold">
-                  <Link href="https://www.myimoapp.com" target="_blank" rel="noopener noreferrer">
+                <Button asChild className=" text-green-700 bg-green-50 font-semibold cursor-pointer">
+                  <Link href="https://www.myimoapp.com" target="_blank" rel="noopener noreferrer" className='cursor-pointer'>
                     Register Now in myimoapp
                   </Link>
                 </Button>
