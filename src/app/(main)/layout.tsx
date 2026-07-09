@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "../../app/globals.css";
 import PageTransitionWrapper from "@/app/components/PageTransitionWrapper";
 import { Navbar } from "@/app/components/Navbar";
+import BootcampAdModal from "@/app/components/BootcampAdModal";
 // import Chatbot from "@/app/components/Chatbot";
 import Chatbot from "../components/Chatbot";
 const defaultTitle = 'Imo State Ministry of Digital Economy and E-Governance';
@@ -128,6 +129,7 @@ export default function RootLayout({
       <body
         className={`antialiased ${satoshiFont.className}`}
       >
+        <BootcampAdModal />
         <Navbar />
         <PageTransitionWrapper>
           {children}
