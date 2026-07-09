@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { NewsPost } from "../../../lib/types";
+import { NewsPost } from "../../../../lib/types";
 
 
 export default function NewsCard({ news }: { news: NewsPost }) {

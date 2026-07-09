@@ -2,7 +2,7 @@
 
 import { BiChevronDown } from "react-icons/bi";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Category } from "../../../lib/types";
+import { Category } from "../../../../lib/types";
 import { useState } from "react";
 
 export default function NewsSidebar({categories}: {categories: Category[]}) {
