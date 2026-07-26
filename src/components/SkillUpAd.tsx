@@ -29,5 +29,5 @@ export default function SkillUpAd() {
   //   </div>
   // );
 
-  return;
+  return null;
 }
