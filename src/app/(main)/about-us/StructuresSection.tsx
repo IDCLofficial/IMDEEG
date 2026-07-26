@@ -43,12 +43,13 @@ export const StructuresSection = ({imgSrc}: StructuresSectionProps) => {
                     The Ministry is divided into specialized departments that collectively drive Imo&apos;s digital agenda
                 </p>
                 {/* Main Image */}
-                <div className="relative w-full h-[180px] md:h-[500px] rounded-xl overflow-hidden shadow-lg mb-8 md:mb-20">
+                <div className="relative w-full h-[180px] md:h-[680px] rounded-xl overflow-hidden shadow-lg mb-8 md:mb-20">
                     <Image
                         src={imgSrc}
                         alt="Ministry Building"
-                        fill
-                        className="object-cover"
+                        width={1200}
+                        height={800}
+                        className="object-fit w-full h-full"
                         priority
                     />
                 </div>
