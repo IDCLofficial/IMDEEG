@@ -9,7 +9,7 @@ export function DataHeroSection() {
   };
 
   return (
-    <section className="bg-gradient-to-r from-[#119156] to-[#22C55E] text-white py-20 h-[800px] flex items-center">
+    <section className="bg-gradient-to-r from-[#119156] to-[#22C55E] text-white py-20 h-[70vh] flex items-center">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-6">
           Digital Economy Data Portal

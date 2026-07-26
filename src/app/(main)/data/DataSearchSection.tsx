@@ -367,58 +367,75 @@ function normalizeCourseName(courseName: string): string {
 function normalizeLGAName(lgaName: string): string | null {
   if (!lgaName) return null;
   
-  const normalized = lgaName.trim().toLowerCase();
+  const normalized = lgaName
+    .trim()
+    .toLowerCase()
+    .normalize('NFKC')
+    .replace(/[\/._-]+/g, ' ')
+    .replace(/\blga\b/g, '')
+    .replace(/\s+/g, ' ');
   
   // Official Imo State LGAs (27 total)
   const officialImoLGAs: { [key: string]: string } = {
     // Owerri Zone
     'owerri municipal': 'Owerri Municipal',
+    'municipal': 'Owerri Municipal',
     'owerri north': 'Owerri North',
     'owerri west': 'Owerri West',
     
     // Orlu Zone
     'orlu': 'Orlu',
-    'orlu west': 'Orlu West',
-    'orlu east': 'Orlu East',
-    'orlu north': 'Orlu North',
-    'orlu south': 'Orlu South',
+    'oru': 'Orlu',
+    'oru west': 'Oru West',
+    'oru east': 'Oru East',
+    'orlu west': 'Oru West',
+    'orlu east': 'Oru East',
+    'orlu north': 'Orlu',
+    'orlu south': 'Orlu',
     
     // Okigwe Zone
     'okigwe': 'Okigwe',
-    'okigwe north': 'Okigwe North',
-    'okigwe south': 'Okigwe South',
+    'okigwe north': 'Okigwe',
+    'okigwe south': 'Okigwe',
     
     // Mbaitoli Zone
     'mbaitoli': 'Mbaitoli',
-    'mbaitoli east': 'Mbaitoli East',
-    'mbaitoli west': 'Mbaitoli West',
+    'mbaitolu': 'Mbaitoli',
+    'mbaitoli east': 'Mbaitoli',
+    'mbaitoli west': 'Mbaitoli',
     
     // Ideato Zone
     'ideato north': 'Ideato North',
     'ideato south': 'Ideato South',
     
     // Mbaise Zone
+    'ahiazu': 'Ahiazu Mbaise',
     'ahiazu mbaise': 'Ahiazu Mbaise',
     'aboh mbaise': 'Aboh Mbaise',
     'ezinihitte mbaise': 'Ezinihitte Mbaise',
+    'ezinihitte': 'Ezinihitte Mbaise',
     'ihitte/uboma': 'Ihitte/Uboma',
     'ihitte uboma': 'Ihitte/Uboma',
     'isiala mbano': 'Isiala Mbano',
+    'isala mbano': 'Isiala Mbano',
     
     // Other LGAs
     'oguta': 'Oguta',
     'njaba': 'Njaba',
     'nkwere': 'Nkwerre',
+    'nkwerre': 'Nkwerre',
     'nwangele': 'Nwangele',
     'isu': 'Isu',
     'onimo': 'Onuimo',
+    'onuimo': 'Onuimo',
     'ehime mbano': 'Ehime Mbano',
     'obowo': 'Obowo',
     'orsu': 'Orsu',
     'ohaji/egbema': 'Ohaji/Egbema',
     'ohaji egbema': 'Ohaji/Egbema',
     'ikeduru': 'Ikeduru',
-    'ngor okpala': 'Ngor Okpala'
+    'ngor okpala': 'Ngor Okpala',
+    'ngor okapala': 'Ngor Okpala'
   };
   
   // Check if we have a mapping for this LGA
