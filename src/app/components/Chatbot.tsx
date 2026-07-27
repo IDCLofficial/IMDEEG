@@ -1,136 +1,368 @@
-"use client"
+"use client";
 
-import { MessageCircleIcon, Send, X } from "lucide-react"
-import Wave from "./wave"
-import { useEffect, useRef, useState } from "react"
-import { chat } from "../../../lib/chat"
+import {
+  Bot,
+  Copy,
+  MessageCircleIcon,
+  RefreshCw,
+  Send,
+  Trash2,
+  User,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CHAT_SUGGESTED_PROMPTS } from "../../../lib/chatbot/config";
+import { chat, type ClientChatMessage } from "../../../lib/chat";
 
-type ChatMessage = {
-  role: "user" | "bot"
-  content: string
+type MessageRole = "user" | "assistant";
+
+type UIMessage = {
+  id: string;
+  role: MessageRole;
+  content: string;
+  createdAt: number;
+  status: "sent" | "error";
+  retryPrompt?: string;
+};
+
+const STORAGE_KEY = "imdeeg.chat.session.v1";
+const MAX_INPUT_LENGTH = 1000;
+
+function nowLabel(timestamp: number): string {
+  return new Date(timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function createWelcomeMessage(): UIMessage {
+  return {
+    id: `welcome-${Date.now()}`,
+    role: "assistant",
+    content: "Hello, I am the IMDEEG support assistant. Ask me anything about our programs, services, or contacts.",
+    createdAt: Date.now(),
+    status: "sent",
+  };
 }
 
 export default function Chatbot() {
-  const [showChatBox, setShowChatBox] = useState(false)
-  const [message, setMessage] = useState("")
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<UIMessage[]>([createWelcomeMessage()]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [activeError, setActiveError] = useState<string | null>(null);
 
-  const chatBodyRef = useRef<HTMLDivElement>(null);
-
-  // Add greeting on mount
-  useEffect(() => {
-    setMessages([
-      { role: "bot", content: "Hi Imolite, what would you like to know?" },
-    ])
-  }, [])
+  const listRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return;
     }
-  }, [messages])
 
-  async function handleSend() {
-    if (!message.trim()) return
-
-    // add user message
-    setMessages((prev) => [...prev, { role: "user", content: message }])
-    const userMessage = message
-    setMessage("")
-
-    // send to backend
-    setMessages((prev) => [...prev, { role: "bot", content: "Thinking..." }])
-    const response = await chat(userMessage)
-    // replace the "Thinking..." placeholder with the real response
-    setMessages((prev) => {
-      const last = prev[prev.length - 1]
-      if (last?.role === "bot" && last.content === "Thinking...") {
-        const withoutLast = prev.slice(0, -1)
-        return [...withoutLast, { role: "bot", content: response }]
+    try {
+      const parsed = JSON.parse(raw) as UIMessage[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setMessages(parsed);
       }
-      return [...prev, { role: "bot", content: response }]
-    })
+    } catch {
+      setMessages([createWelcomeMessage()]);
+    }
+  }, []);
 
-    
-  }
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (isOpen) {
+      inputRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    function onEsc(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      window.addEventListener("keydown", onEsc);
+    }
+
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [isOpen]);
+
+  const conversationHistory = useMemo<ClientChatMessage[]>(() => {
+    return messages
+      .filter((message) => message.status === "sent")
+      .map((message) => ({
+        role: message.role,
+        content: message.content,
+      }));
+  }, [messages]);
+
+  const copyMessage = useCallback(async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch {
+      // Clipboard may be blocked in some browsers.
+    }
+  }, []);
+
+  const runPrompt = useCallback(
+    async (promptText: string) => {
+      const trimmed = promptText.trim();
+      if (!trimmed || isTyping) {
+        return;
+      }
+
+      const prompt = trimmed.slice(0, MAX_INPUT_LENGTH);
+      const userMessage: UIMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: prompt,
+        createdAt: Date.now(),
+        status: "sent",
+      };
+
+      setMessages((prev) => [...prev, userMessage]);
+      setInput("");
+      setIsTyping(true);
+      setActiveError(null);
+
+      try {
+        const reply = await chat([...conversationHistory, { role: "user", content: prompt }]);
+        const assistantMessage: UIMessage = {
+          id: `assistant-${Date.now()}`,
+          role: "assistant",
+          content: reply,
+          createdAt: Date.now(),
+          status: "sent",
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unable to send message right now.";
+        setActiveError(message);
+
+        const errorMessage: UIMessage = {
+          id: `assistant-error-${Date.now()}`,
+          role: "assistant",
+          content: message,
+          createdAt: Date.now(),
+          status: "error",
+          retryPrompt: prompt,
+        };
+
+        setMessages((prev) => [...prev, errorMessage]);
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [conversationHistory, isTyping]
+  );
+
+  const clearConversation = useCallback(() => {
+    const welcome = createWelcomeMessage();
+    setMessages([welcome]);
+    setActiveError(null);
+  }, []);
+
+  const isNearEmpty = messages.length <= 1;
 
   return (
-    <div> 
-        <div className={`overlay fixed h-screen w-full bg-black/10 z-40 transition-all duration-100 ease-in ${showChatBox ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setShowChatBox(false)}></div>  
-        <div className="fixed bottom-5 right-5 z-50 h-auto">
-          {!showChatBox ? (
-            <button
-              className="p-2 relative z-[50] bg-blue-600 rounded-full h-[60px] w-[60px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out"
-              onClick={() => setShowChatBox(!showChatBox)}
-              >
-              <MessageCircleIcon
-                  className={`text-white transition-all`}
-                  size={30}
-              />
-            </button>
-          ) : (
-                  
-            <div
-              className={`h-[450px] w-[300px] flex flex-col bg-white rounded-[10px] shadow transition-all ease-in-out ${
-                  showChatBox
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none"
-              }`}
-            >
-            <button className="p-2 absolute top-2 right-2 z-[50] bg-blue-600 rounded-full h-[40px] w-[40px] cursor-pointer shadow-md flex justify-center items-center active:scale-105 transition-all ease-in-out" onClick={() => setShowChatBox(!showChatBox)}>
-                <X className="text-white" size={30}/>
-            </button>
-            {/* Header */}
-            <div className="h-[30%] flex flex-col justify-end bg-blue-600 p-3 rounded-b-[10%] rounded-t-[10px]">
-                <h1 className="text-white font-bold text-2xl flex items-center gap-1">
-                Hi there! <Wave className="inline align-middle" size={32} />
-                </h1>
-                <p className="text-white">How can I help you today?</p>
-            </div>
+    <div className="fixed bottom-4 right-4 z-50 md:bottom-6 md:right-6">
+      <div
+        className={`fixed inset-0 bg-black/20 transition-opacity duration-300 ${
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
 
-            {/* Chat body */}
-            <div
-              ref={chatBodyRef}
-              id="chatBody"
-              className="flex-1 overflow-y-auto p-2 py-3 space-y-2"
-            >
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`p-2 rounded-lg max-w-[80%] ${
-                m.role === "user"
-                    ? "bg-blue-100 self-end ml-auto"
-                    : m.content === "Thinking..."
-                    ? "text-gray-400 self-start animate-pulse"
-                    : "bg-gray-100 self-start"
-                }`}
-              >
-                {m.content}
+      <div className="relative">
+        <button
+          type="button"
+          aria-label={isOpen ? "Close support assistant" : "Open support assistant"}
+          className={`h-14 w-14 md:h-16 md:w-16 rounded-full shadow-xl border border-white/30 bg-[#119156] text-white flex items-center justify-center transition-all duration-300 ${
+            isOpen ? "scale-95 opacity-0 pointer-events-none" : "scale-100 opacity-100"
+          }`}
+          onClick={() => setIsOpen(true)}
+        >
+          <MessageCircleIcon size={26} />
+        </button>
+
+        <section
+          role="dialog"
+          aria-label="IMDEEG support assistant"
+          className={`absolute bottom-0 right-0 w-[calc(100vw-2rem)] max-w-[390px] h-[75vh] max-h-[680px] bg-white rounded-2xl border border-[#119156]/20 shadow-2xl overflow-hidden flex flex-col transform transition-all duration-300 origin-bottom-right ${
+            isOpen ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" : "opacity-0 translate-y-6 scale-95 pointer-events-none"
+          }`}
+        >
+          <header className="bg-[#119156] text-white px-4 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">IMDEEG Support</h2>
+                <p className="text-sm text-white/85">Ask about our digital programs and services.</p>
               </div>
-            ))}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Clear conversation"
+                  onClick={clearConversation}
+                  className="h-8 w-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center"
+                >
+                  <Trash2 size={16} />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Close support assistant"
+                  onClick={() => setIsOpen(false)}
+                  className="h-8 w-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-              {/* Input */}
-              <div className="p-2 border-t border-gray-200">
-                <div className="flex items-center gap-2 border border-gray-300 rounded-[10px] p-2">
-                  <input
-                    type="text"
-                    placeholder="Ask me anything..."
-                    className="w-full outline-0"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  />
-                  <button
-                    className="rounded-full cursor-pointer flex justify-center items-center active:scale-105 transition-all ease-in-out"
-                    onClick={handleSend}
-                  >
-                    <Send size={20} />
-                  </button>
+          </header>
+
+          <div ref={listRef} className="flex-1 overflow-y-auto px-3 py-4 bg-[#F8FBF9] space-y-3">
+            {isNearEmpty && (
+              <div className="rounded-xl border border-[#119156]/20 bg-white p-3">
+                <p className="text-sm text-gray-700 mb-3">Try one of these prompts:</p>
+                <div className="flex flex-wrap gap-2">
+                  {CHAT_SUGGESTED_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => runPrompt(prompt)}
+                      className="text-xs px-3 py-2 rounded-full bg-[#119156]/10 text-[#119156] hover:bg-[#119156]/20"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
               </div>
+            )}
+
+            {messages.length === 0 && (
+              <div className="h-full flex items-center justify-center text-sm text-gray-500">
+                Conversation is empty. Start by asking a question.
+              </div>
+            )}
+
+            {messages.map((message) => {
+              const isUser = message.role === "user";
+              return (
+                <article key={message.id} className={`flex gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
+                  {!isUser && (
+                    <div className="h-8 w-8 rounded-full bg-[#119156]/15 text-[#119156] flex items-center justify-center shrink-0 mt-1">
+                      <Bot size={16} />
+                    </div>
+                  )}
+
+                  <div className={`group max-w-[82%] ${isUser ? "items-end" : "items-start"} flex flex-col`}>
+                    <div
+                      className={`px-3 py-2 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                        isUser
+                          ? "bg-[#119156] text-white rounded-br-md"
+                          : message.status === "error"
+                            ? "bg-red-50 text-red-700 border border-red-200 rounded-bl-md"
+                            : "bg-white text-gray-800 border border-gray-100 rounded-bl-md"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
+
+                    <div className="mt-1 flex items-center gap-2 text-[11px] text-gray-500">
+                      <span>{nowLabel(message.createdAt)}</span>
+                      <button
+                        type="button"
+                        aria-label="Copy message"
+                        onClick={() => copyMessage(message.content)}
+                        className="opacity-70 hover:opacity-100"
+                      >
+                        <Copy size={12} />
+                      </button>
+
+                      {message.status === "error" && message.retryPrompt && (
+                        <button
+                          type="button"
+                          aria-label="Retry message"
+                          onClick={() => runPrompt(message.retryPrompt as string)}
+                          className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
+                        >
+                          <RefreshCw size={12} /> Retry
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {isUser && (
+                    <div className="h-8 w-8 rounded-full bg-[#119156] text-white flex items-center justify-center shrink-0 mt-1">
+                      <User size={16} />
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+
+            {isTyping && (
+              <div className="flex items-end gap-2">
+                <div className="h-8 w-8 rounded-full bg-[#119156]/15 text-[#119156] flex items-center justify-center shrink-0">
+                  <Bot size={16} />
+                </div>
+                <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-bl-md px-3 py-2 flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-[#119156] animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-[#119156] animate-pulse [animation-delay:120ms]" />
+                  <span className="h-2 w-2 rounded-full bg-[#119156] animate-pulse [animation-delay:240ms]" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <footer className="border-t border-gray-200 bg-white p-3">
+            {activeError && (
+              <p className="text-xs text-red-600 mb-2" role="status" aria-live="polite">
+                {activeError}
+              </p>
+            )}
+
+            <div className="flex items-end gap-2 rounded-xl border border-gray-300 px-3 py-2 focus-within:border-[#119156] focus-within:ring-2 focus-within:ring-[#119156]/20">
+              <textarea
+                ref={inputRef}
+                aria-label="Type your message"
+                placeholder="Ask IMDEEG support..."
+                className="w-full resize-none outline-none text-sm max-h-28"
+                value={input}
+                rows={1}
+                maxLength={MAX_INPUT_LENGTH}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    void runPrompt(input);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                aria-label="Send message"
+                onClick={() => void runPrompt(input)}
+                disabled={isTyping || !input.trim()}
+                className="h-9 w-9 rounded-full bg-[#119156] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send size={16} />
+              </button>
             </div>
-          )}
-        </div>
+          </footer>
+        </section>
+      </div>
     </div>
-  )
+  );
 }
