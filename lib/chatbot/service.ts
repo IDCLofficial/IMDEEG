@@ -1,6 +1,7 @@
 import { CHAT_LIMITS, CHAT_MODEL, CHAT_SYSTEM_PROMPT } from "./config";
 import { GroqProvider } from "./providers/groq";
 import type { ChatMessage } from "./types";
+import { loadKnowledgeBase, extractRelevantContext } from "./knowledge-base";
 
 function sanitizeInput(text: string): string {
   return text
@@ -47,13 +48,28 @@ export async function generateSupportReply(messages: ChatMessage[]): Promise<str
     throw new Error("Server is missing GROQ_API_KEY configuration.");
   }
 
+  // Load knowledge base to inject live data
+  const knowledgeBase = await loadKnowledgeBase();
+  
+  // Extract relevant context from knowledge base based on the latest user query
+  const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+  const relevantContext = lastUserMessage 
+    ? extractRelevantContext(knowledgeBase, lastUserMessage.content)
+    : '';
+
+  // Enhance system prompt with relevant context
+  const enhancedSystemPrompt = `${CHAT_SYSTEM_PROMPT}
+
+CURRENT LIVE DATA AND CONTEXT:
+${relevantContext}`;
+
   const provider = new GroqProvider(apiKey);
   const completion = await provider.createCompletion({
     model: CHAT_MODEL,
     messages: [
       {
         role: "system",
-        content: CHAT_SYSTEM_PROMPT,
+        content: enhancedSystemPrompt,
       },
       ...messages,
     ],

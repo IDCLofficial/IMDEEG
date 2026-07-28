@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:data-json": "node scripts/generate-website-data-json.mjs"
+    "generate:data-json": "node scripts/generate-website-data-json.mjs",
+    "scrape:website": "node scripts/scrape-website.mjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

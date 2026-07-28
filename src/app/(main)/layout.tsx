@@ -134,6 +134,7 @@ export default function RootLayout({
         <PageTransitionWrapper>
           {children}
         </PageTransitionWrapper>
+        <Chatbot />
       </body>
     </html>
   );
