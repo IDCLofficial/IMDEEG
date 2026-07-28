@@ -1,0 +1,75 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { DataHeroSection } from './DataHeroSection';
+import { DataTabsSection } from './DataTabsSection';
+import { SkillupIMOSection } from './SkillupIMOSection';
+import { BroadbandInfrastructureSection } from './BroadbandInfrastructureSection';
+
+interface Participant {
+  'S/N': number;
+  NAME: string;
+  GENDER: string;
+  COURSE: string;
+  LGA: string;
+}
+
+const TABS = [
+  { id: 'skillupimo', label: 'SkillupIMO Data', icon: '🎓' },
+  { id: 'broadband', label: 'Broadband Infrastructure', icon: '📡' },
+];
+
+export default function DataPage() {
+  const [activeTab, setActiveTab] = useState('skillupimo');
+  const [data, setData] = useState<Participant[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/WEBSITE_DATA.json');
+        const jsonData = await response.json();
+        
+        // Filter out entries with null names and clean the data
+        const cleanData = jsonData.filter((item: { NAME: string | null }) => 
+          item.NAME && 
+          item.NAME !== 'TOTAL 28039' && 
+          item.NAME !== null && 
+          item.NAME.trim() !== ''
+        );
+        
+        setData(cleanData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#119156] mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <DataHeroSection />
+      <DataTabsSection 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        tabs={TABS}
+      />
+      {activeTab === 'skillupimo' && <SkillupIMOSection data={data} />}
+      {activeTab === 'broadband' && <BroadbandInfrastructureSection />}
+    </div>
+  );
+}
