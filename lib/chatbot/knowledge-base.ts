@@ -1,6 +1,9 @@
 // Knowledge base manager for chatbot
 // Loads and manages data from various sources to inject into chat context
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 export interface KnowledgeBase {
   programs: string;
   courses: string;
@@ -9,24 +12,59 @@ export interface KnowledgeBase {
   websiteContent: string;
 }
 
+interface TrainingData {
+  NAME?: string;
+  GENDER?: string;
+  COURSE?: string;
+  LGA?: string;
+  [key: string]: string | undefined;
+}
+
+interface WebsiteSection {
+  heading: string;
+  content: string;
+}
+
+interface WebsiteLink {
+  text: string;
+  url?: string;
+}
+
+interface WebsitePage {
+  label: string;
+  path: string;
+  url?: string;
+  textContent?: string;
+  sections?: WebsiteSection[];
+  links?: WebsiteLink[];
+}
+
+interface WebsiteContentData {
+  timestamp?: string;
+  source?: string;
+  pages: WebsitePage[];
+}
+
 // Load knowledge base from various sources
 export async function loadKnowledgeBase(): Promise<KnowledgeBase> {
   try {
     // Load website scrape data first (most comprehensive)
     let websiteContent = '';
     try {
-      const websiteDataResponse = await fetch('/website-content.json');
-      if (websiteDataResponse.ok) {
-        const websiteData = await websiteDataResponse.json();
-        websiteContent = processWebsiteContent(websiteData);
-      }
-    } catch (e) {
-      console.warn('Website content file not available. Run: node scripts/scrape-website.mjs');
+      const publicDir = join(process.cwd(), 'public');
+      const websiteContentPath = join(publicDir, 'website-content.json');
+      const websiteContentRaw = readFileSync(websiteContentPath, 'utf-8');
+      const websiteData = JSON.parse(websiteContentRaw);
+      websiteContent = processWebsiteContent(websiteData);
+    } catch (_e) {
+      console.warn('Website content file not available. Run: npm run scrape:website');
     }
 
     // Load training data (actual training participants)
-    const websiteDataResponse = await fetch('/WEBSITE_DATA.json');
-    const websiteData = await websiteDataResponse.json();
+    const publicDir = join(process.cwd(), 'public');
+    const websiteDataPath = join(publicDir, 'WEBSITE_DATA.json');
+    const websiteDataRaw = readFileSync(websiteDataPath, 'utf-8');
+    const websiteData = JSON.parse(websiteDataRaw);
     
     // Aggregate statistics from actual data
     const stats = aggregateStatistics(websiteData);
@@ -53,7 +91,7 @@ export async function loadKnowledgeBase(): Promise<KnowledgeBase> {
   }
 }
 
-function processWebsiteContent(websiteData: any): string {
+function processWebsiteContent(websiteData: WebsiteContentData): string {
   if (!websiteData || !websiteData.pages) {
     return '';
   }
@@ -61,7 +99,7 @@ function processWebsiteContent(websiteData: any): string {
   const contentParts: string[] = [];
 
   // Process each page
-  websiteData.pages.forEach((page: any) => {
+  websiteData.pages.forEach((page: WebsitePage) => {
     contentParts.push(`\n### ${page.label}`);
     
     // Add text content
@@ -72,7 +110,7 @@ function processWebsiteContent(websiteData: any): string {
 
     // Add key sections
     if (page.sections && page.sections.length > 0) {
-      page.sections.slice(0, 3).forEach((section: any) => {
+      page.sections.slice(0, 3).forEach((section: WebsiteSection) => {
         contentParts.push(`**${section.heading}:** ${section.content}`);
       });
     }
@@ -81,7 +119,7 @@ function processWebsiteContent(websiteData: any): string {
     if (page.links && page.links.length > 0) {
       const importantLinks = page.links
         .slice(0, 5)
-        .map((link: any) => `- ${link.text}`)
+        .map((link: WebsiteLink) => `- ${link.text}`)
         .join('\n');
       if (importantLinks) {
         contentParts.push(`**Key Links:**\n${importantLinks}`);
@@ -105,7 +143,7 @@ SKILLUP IMO PROGRAMS:
   `;
 }
 
-function aggregateStatistics(data: any[]): string {
+function aggregateStatistics(data: TrainingData[]): string {
   if (!Array.isArray(data) || data.length === 0) {
     return "Live statistics are being updated in real-time.";
   }
@@ -123,7 +161,7 @@ function aggregateStatistics(data: any[]): string {
   
   // Gender distribution
   const genderCounts = validData.reduce(
-    (acc: Record<string, number>, item: any) => {
+    (acc: Record<string, number>, item: TrainingData) => {
       const gender = (item.GENDER || '').trim().toUpperCase();
       acc[gender] = (acc[gender] || 0) + 1;
       return acc;
@@ -133,7 +171,7 @@ function aggregateStatistics(data: any[]): string {
 
   // Course distribution
   const courseCounts = validData.reduce(
-    (acc: Record<string, number>, item: any) => {
+    (acc: Record<string, number>, item: TrainingData) => {
       const course = (item.COURSE || '').trim();
       if (course) {
         acc[course] = (acc[course] || 0) + 1;
@@ -161,13 +199,13 @@ ${topCourses}
   `;
 }
 
-function generateCourseSummary(data: any[]): string {
+function generateCourseSummary(data: TrainingData[]): string {
   if (!Array.isArray(data) || data.length === 0) {
     return "30+ training courses are available in digital skills.";
   }
 
   const courses = new Set<string>();
-  data.forEach((item) => {
+  data.forEach((item: TrainingData) => {
     if (item.COURSE && item.COURSE.trim()) {
       courses.add(item.COURSE.trim());
     }
@@ -183,13 +221,13 @@ All courses designed for practical job market readiness.
   `;
 }
 
-function generateLGASummary(data: any[]): string {
+function generateLGASummary(data: TrainingData[]): string {
   if (!Array.isArray(data) || data.length === 0) {
     return "Training programs cover all 27 LGAs in Imo State.";
   }
 
   const lgaCounts = data.reduce(
-    (acc: Record<string, number>, item: any) => {
+    (acc: Record<string, number>, item: TrainingData) => {
       const lga = (item.LGA || '').trim();
       if (lga) {
         acc[lga] = (acc[lga] || 0) + 1;
