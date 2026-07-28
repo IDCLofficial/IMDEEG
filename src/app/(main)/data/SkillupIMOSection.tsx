@@ -128,7 +128,7 @@ export function SkillupIMOSection({
   normalizeLGAName,
   normalizeGenderName
 }: SkillupIMOSectionProps) {
-  const isProduction = process.env.NEXT_PUBLIC_ENVIRONMENT === 'production';
+  const isProduction = process.env.NEXT_PUBLIC_ENVIRONMENT === 'production' || !process.env.NEXT_PUBLIC_ENVIRONMENT;
   const [useTemporaryData, setUseTemporaryData] = useState(isProduction);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
