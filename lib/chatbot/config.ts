@@ -12,6 +12,7 @@ export const CHAT_SUGGESTED_PROMPTS: string[] = [
   "What services does IMDEEG provide?",
   "How can I apply for SkillUp Imo programs?",
   "Where is the ministry located and how can I contact support?",
+  "I want to submit a public request and open a support ticket.",
   "What digital training areas are currently available?",
 ];
 

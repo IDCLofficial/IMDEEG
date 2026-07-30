@@ -1,0 +1,44 @@
+# SEO robots configuration for IMDEEG website
+# This file helps search engines crawl and index the site efficiently
+
+User-agent: *
+Allow: /
+Allow: /data
+Allow: /about-us
+Allow: /contact-us
+Allow: /departments
+Allow: /projects
+Allow: /events
+Allow: /news
+Allow: /media
+Allow: /register
+
+# Disallow unnecessary paths
+Disallow: /admin
+Disallow: /api/
+Disallow: /private/
+Disallow: /*.json
+Disallow: /node_modules/
+
+# Crawl delay settings (in seconds)
+# These values help prevent server overload
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://mdeeg.im.gov.ng/sitemap.xml
+Sitemap: https://mdeeg.im.gov.ng/sitemap-news.xml
+
+# Google Bot specific settings
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing Bot specific settings
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Other bots
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1

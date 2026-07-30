@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateSupportReply, validateChatMessages } from "../../../../lib/chatbot/service";
+import {
+    createSupportTicket,
+    extractContactFromText,
+    shouldCreatePublicRequestTicket,
+} from "../../../../lib/support/tickets";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
@@ -43,6 +48,39 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const messages = validateChatMessages(body?.messages);
+
+        const latestUserMessage = messages[messages.length - 1];
+
+        if (shouldCreatePublicRequestTicket(latestUserMessage.content)) {
+            try {
+                const contact = extractContactFromText(latestUserMessage.content);
+                const ticket = await createSupportTicket({
+                    source: "chat_assistant",
+                    email: contact.email,
+                    phone: contact.phone,
+                    message: latestUserMessage.content,
+                    metadata: {
+                        channel: "website_chatbot",
+                        clientId,
+                    },
+                });
+
+                if (ticket.deliveryMethod === "termii") {
+                    return NextResponse.json({
+                        reply: `I have created a support ticket for your public request and sent it to the ministry via WhatsApp. Your ticket ID is ${ticket.ticketId}. Please keep this ID for follow-up.`,
+                    });
+                }
+
+                return NextResponse.json({
+                    reply: `I created a support ticket for your public request. Termii delivery is unavailable right now, so please tap this link to send it via WhatsApp: ${ticket.waMeLink} . Your ticket ID is ${ticket.ticketId}.`,
+                });
+            } catch {
+                return NextResponse.json({
+                    reply: "I understand this is a public request, but I could not submit a ticket right now. Please use the Contact Us form and try again in a moment.",
+                });
+            }
+        }
+
         const reply = await generateSupportReply(messages);
 
         return NextResponse.json({ reply });

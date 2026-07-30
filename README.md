@@ -124,7 +124,27 @@ This project is a modern, modular web application built with [Next.js](https://n
    bun install
    ```
 
-2. **Run the development server:**
+2. **Configure environment variables:**
+  Create a `.env.local` file with your existing project variables and add the support-ticket WhatsApp settings:
+  ```bash
+  # Required for fallback delivery link
+  WHATSAPP_TO_NUMBER=+2348012345678
+
+  # Termii direct delivery (optional, used first when configured)
+  TERMII_API_KEY=your_termii_api_key
+  TERMII_SENDER_ID=IMDEEG
+  TERMII_CHANNEL=whatsapp
+  TERMII_BASE_URL=https://api.ng.termii.com
+
+  # Chatbot provider
+  GROQ_API_KEY=your_groq_api_key
+  ```
+
+  Support-ticket delivery strategy:
+  - Try Termii first for automatic WhatsApp delivery.
+  - If Termii fails, the system returns a prefilled `wa.me` link so the user can send the ticket manually.
+
+3. **Run the development server:**
    ```bash
    npm run dev
    # or
@@ -135,10 +155,10 @@ This project is a modern, modular web application built with [Next.js](https://n
    bun dev
    ```
 
-3. **Open your browser:**
+4. **Open your browser:**
    Visit [http://localhost:3000](http://localhost:3000) to view the app.
 
-4. **Edit pages/components:**
+5. **Edit pages/components:**
    Modify files in `src/app/` or `src/components/` to update content and UI. The app supports hot reloading with Turbopack.
 
 ## Available Scripts
