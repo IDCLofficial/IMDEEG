@@ -3,7 +3,7 @@
 
 export interface StructuredDataProps {
   pageType: 'Organization' | 'WebPage' | 'Dataset' | 'FAQPage' | 'LocalBusiness';
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
