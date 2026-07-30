@@ -39,6 +39,33 @@ function sanitizeOptionalText(value?: string): string | undefined {
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
+function normalizePhoneNumber(value?: string): string | undefined {
+  const cleaned = sanitizeOptionalText(value);
+  if (!cleaned) {
+    return undefined;
+  }
+
+  const digits = cleaned.replace(/[^\d]/g, "");
+  if (!digits) {
+    return undefined;
+  }
+
+  // Nigeria local formats -> E.164 digits without plus for provider compatibility.
+  if (digits.length === 10) {
+    return `234${digits}`;
+  }
+
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return `234${digits.slice(1)}`;
+  }
+
+  if (digits.length === 13 && digits.startsWith("234")) {
+    return digits;
+  }
+
+  return digits;
+}
+
 function isValidEmail(value?: string): boolean {
   return !!value && EMAIL_PATTERN.test(value);
 }
@@ -94,8 +121,8 @@ function getRecipientDigits(): string {
     throw new Error("Missing WhatsApp recipient number. Set WHATSAPP_TO_NUMBER.");
   }
 
-  const digits = recipient.replace(/[^\d]/g, "");
-  if (digits.length < 10) {
+  const digits = normalizePhoneNumber(recipient);
+  if (!digits || digits.length < 10) {
     throw new Error("Invalid WHATSAPP_TO_NUMBER format.");
   }
 
@@ -106,16 +133,25 @@ function buildWaMeLink(recipientDigits: string, text: string): string {
   return `https://wa.me/${recipientDigits}?text=${encodeURIComponent(text)}`;
 }
 
-async function sendTermiiWhatsAppMessage(text: string, recipientDigits: string): Promise<string | undefined> {
+async function sendTermiiWhatsAppMessage(
+  text: string,
+  recipientDigits: string,
+  requesterPhone?: string
+): Promise<string | undefined> {
   const apiKey = process.env.TERMII_API_KEY;
-  const from = process.env.TERMII_SENDER_ID;
+  const configuredSender = process.env.TERMII_SENDER_ID;
   const baseUrl = process.env.TERMII_BASE_URL || "https://api.ng.termii.com";
   const channel = process.env.TERMII_CHANNEL || "whatsapp";
 
-  if (!apiKey || !from) {
+  if (!apiKey) {
     throw new Error(
-      "Termii is not configured. Set TERMII_API_KEY and TERMII_SENDER_ID to enable direct delivery."
+      "Termii is not configured. Set TERMII_API_KEY to enable direct delivery."
     );
+  }
+
+  const from = normalizePhoneNumber(requesterPhone) || sanitizeOptionalText(configuredSender);
+  if (!from) {
+    throw new Error("Missing sender information. Provide customer phone or TERMII_SENDER_ID.");
   }
 
   const response = await fetch(`${baseUrl}/api/sms/send`, {
@@ -170,7 +206,7 @@ function validateTicketInput(input: CreateSupportTicketInput): {
 
   const name = sanitizeOptionalText(input.name);
   const email = sanitizeOptionalText(input.email);
-  const phone = sanitizeOptionalText(input.phone);
+  const phone = normalizePhoneNumber(input.phone);
   const message = sanitizeText(input.message || "");
 
   if (!message) {
@@ -196,6 +232,10 @@ function validateTicketInput(input: CreateSupportTicketInput): {
 
     if (!email) {
       throw new Error("Email is required for contact form tickets.");
+    }
+
+    if (!phone) {
+      throw new Error("WhatsApp phone number is required for contact form tickets.");
     }
   }
 
@@ -243,7 +283,7 @@ export async function createSupportTicket(input: CreateSupportTicketInput): Prom
   const waMeLink = buildWaMeLink(recipientDigits, whatsappPayload);
 
   try {
-    const whatsappMessageId = await sendTermiiWhatsAppMessage(whatsappPayload, recipientDigits);
+    const whatsappMessageId = await sendTermiiWhatsAppMessage(whatsappPayload, recipientDigits, valid.phone);
 
     return {
       ticketId,

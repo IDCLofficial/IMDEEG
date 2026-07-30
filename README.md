@@ -128,7 +128,7 @@ This project is a modern, modular web application built with [Next.js](https://n
   Create a `.env.local` file with your existing project variables and add the support-ticket WhatsApp settings:
   ```bash
   # Required for fallback delivery link
-  WHATSAPP_TO_NUMBER=+2348012345678
+  WHATSAPP_TO_NUMBER=9129259960
 
   # Termii direct delivery (optional, used first when configured)
   TERMII_API_KEY=your_termii_api_key
@@ -139,6 +139,10 @@ This project is a modern, modular web application built with [Next.js](https://n
   # Chatbot provider
   GROQ_API_KEY=your_groq_api_key
   ```
+
+  Number handling notes:
+  - `WHATSAPP_TO_NUMBER` can be provided as `9129259960`, `09129259960`, or `2349129259960`.
+  - The contact form requires the visitor WhatsApp number and uses it as the preferred sender value for Termii requests.
 
   Support-ticket delivery strategy:
   - Try Termii first for automatic WhatsApp delivery.

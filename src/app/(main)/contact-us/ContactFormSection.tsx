@@ -122,10 +122,11 @@ const ContactFormSection = () => {
         <input
           type="tel"
           name="phone"
-          placeholder="Phone number (optional)"
+          placeholder="WhatsApp number (e.g. 09129259960)"
           value={form.phone}
           onChange={handleChange}
           className="w-full px-4 py-2 rounded border border-gray-300 text-black bg-white focus:outline-none"
+          required
         />
         <textarea
           name="message"
