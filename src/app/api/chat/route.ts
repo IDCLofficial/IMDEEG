@@ -97,7 +97,8 @@ export async function POST(req: NextRequest) {
         const ticketIntent = classifySupportTicketIntent(latestUserMessage.content);
 
         if (ticketIntent.shouldCreateTicket) {
-            const signature = createTicketSignature(latestUserMessage.content, ticketIntent.reason);
+            const triggerReason = ticketIntent.reason === "public_request" ? "public_request" : "complex_issue";
+            const signature = createTicketSignature(latestUserMessage.content, triggerReason);
             const throttled = getThrottledTicket(clientId, signature);
 
             if (throttled) {
@@ -122,7 +123,7 @@ export async function POST(req: NextRequest) {
                     metadata: {
                         channel: "website_chatbot",
                         clientId,
-                        triggerReason: ticketIntent.reason,
+                        triggerReason,
                     },
                 });
 
