@@ -22,6 +22,11 @@ export type CreatedSupportTicket = {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PUBLIC_REQUEST_PATTERN = /\b(public request|support ticket|complaint|report\s+(an\s+)?issue|escalate|petition|official request|request to (the )?ministry)\b/i;
+const COMPLEX_ISSUE_PATTERNS: RegExp[] = [
+  /\b(not working|isn't working|cannot|can't|unable to|failed|failure|error|bug|issue|problem|stuck|crash|broken|denied|blocked|not loading)\b/i,
+  /\b(login|register|registration|portal|dashboard|payment|verification|otp|certificate|data|course|training|application|account)\b/i,
+  /\b(since|for\s+\d+\s*(day|days|hour|hours|week|weeks)|multiple\s+times|repeatedly|urgent|immediately|asap|deadline|important)\b/i,
+];
 
 function sanitizeText(value: string): string {
   return value
@@ -252,6 +257,60 @@ function validateTicketInput(input: CreateSupportTicketInput): {
 export function shouldCreatePublicRequestTicket(message: string): boolean {
   const cleaned = sanitizeText(message);
   return cleaned.length >= 20 && PUBLIC_REQUEST_PATTERN.test(cleaned);
+}
+
+function scoreComplexIssue(message: string): number {
+  const cleaned = sanitizeText(message);
+  if (cleaned.length < 30) {
+    return 0;
+  }
+
+  let score = 0;
+
+  if (COMPLEX_ISSUE_PATTERNS[0].test(cleaned)) {
+    score += 2;
+  }
+
+  if (COMPLEX_ISSUE_PATTERNS[1].test(cleaned)) {
+    score += 1;
+  }
+
+  if (COMPLEX_ISSUE_PATTERNS[2].test(cleaned)) {
+    score += 1;
+  }
+
+  if (cleaned.length >= 120) {
+    score += 1;
+  }
+
+  return score;
+}
+
+export function classifySupportTicketIntent(message: string): {
+  shouldCreateTicket: boolean;
+  reason: "public_request" | "complex_issue" | "none";
+} {
+  const cleaned = sanitizeText(message);
+
+  if (shouldCreatePublicRequestTicket(cleaned)) {
+    return {
+      shouldCreateTicket: true,
+      reason: "public_request",
+    };
+  }
+
+  const issueScore = scoreComplexIssue(cleaned);
+  if (issueScore >= 3) {
+    return {
+      shouldCreateTicket: true,
+      reason: "complex_issue",
+    };
+  }
+
+  return {
+    shouldCreateTicket: false,
+    reason: "none",
+  };
 }
 
 export function extractContactFromText(message: string): { email?: string; phone?: string } {

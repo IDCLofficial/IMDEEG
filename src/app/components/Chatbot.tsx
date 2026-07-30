@@ -4,10 +4,14 @@ import {
   Bot,
   Copy,
   MessageCircleIcon,
+  Mic,
+  MicOff,
   RefreshCw,
   Send,
   Trash2,
   User,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +19,36 @@ import { CHAT_SUGGESTED_PROMPTS } from "../../../lib/chatbot/config";
 import { chat, type ClientChatMessage } from "../../../lib/chat";
 
 type MessageRole = "user" | "assistant";
+
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<{
+    0: { transcript: string };
+  }>;
+};
+
+type SpeechRecognitionErrorEventLike = {
+  error?: string;
+};
+
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+type WindowWithSpeechRecognition = Window & {
+  SpeechRecognition?: SpeechRecognitionCtor;
+  webkitSpeechRecognition?: SpeechRecognitionCtor;
+};
 
 type UIMessage = {
   id: string;
@@ -48,9 +82,14 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<UIMessage[]>([createWelcomeMessage()]);
   const [isTyping, setIsTyping] = useState(false);
   const [activeError, setActiveError] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [isVoiceInputSupported, setIsVoiceInputSupported] = useState(false);
+  const [isVoiceOutputEnabled, setIsVoiceOutputEnabled] = useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const requestAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -85,8 +124,67 @@ export default function Chatbot() {
   }, [isOpen]);
 
   useEffect(() => {
+    const speechWindow = window as WindowWithSpeechRecognition;
+    const Recognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
+
+    if (!Recognition) {
+      setIsVoiceInputSupported(false);
+      return;
+    }
+
+    setIsVoiceInputSupported(true);
+    const recognition = new Recognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-NG";
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        transcript += result[0]?.transcript || "";
+      }
+
+      if (transcript.trim()) {
+        setInput((prev) => `${prev}${prev ? " " : ""}${transcript.trim()}`.slice(0, MAX_INPUT_LENGTH));
+      }
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error && event.error !== "no-speech") {
+        setActiveError("Voice input failed. Please type your message.");
+      }
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      recognition.stop();
+      recognitionRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     function onEsc(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        requestAbortRef.current?.abort();
+        requestAbortRef.current = null;
+        setIsTyping(false);
+        recognitionRef.current?.stop();
+        setIsListening(false);
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        setInput("");
+        setMessages([]);
+        setActiveError(null);
+        sessionStorage.removeItem(STORAGE_KEY);
         setIsOpen(false);
       }
     }
@@ -115,6 +213,42 @@ export default function Chatbot() {
     }
   }, []);
 
+  const speakText = useCallback((text: string) => {
+    if (!isVoiceOutputEnabled || !window.speechSynthesis) {
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text.slice(0, 500));
+    utterance.lang = "en-NG";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }, [isVoiceOutputEnabled]);
+
+  const toggleListening = useCallback(() => {
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      setActiveError("Voice input is not supported on this browser.");
+      return;
+    }
+
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+      return;
+    }
+
+    setActiveError(null);
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch {
+      setActiveError("Could not start voice input. Please try again.");
+      setIsListening(false);
+    }
+  }, [isListening]);
+
   const runPrompt = useCallback(
     async (promptText: string) => {
       const trimmed = promptText.trim();
@@ -135,9 +269,13 @@ export default function Chatbot() {
       setInput("");
       setIsTyping(true);
       setActiveError(null);
+      const controller = new AbortController();
+      requestAbortRef.current = controller;
 
       try {
-        const reply = await chat([...conversationHistory, { role: "user", content: prompt }]);
+        const reply = await chat([...conversationHistory, { role: "user", content: prompt }], {
+          signal: controller.signal,
+        });
         const assistantMessage: UIMessage = {
           id: `assistant-${Date.now()}`,
           role: "assistant",
@@ -146,7 +284,12 @@ export default function Chatbot() {
           status: "sent",
         };
         setMessages((prev) => [...prev, assistantMessage]);
+        speakText(reply);
       } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
         const message = error instanceof Error ? error.message : "Unable to send message right now.";
         setActiveError(message);
 
@@ -161,17 +304,35 @@ export default function Chatbot() {
 
         setMessages((prev) => [...prev, errorMessage]);
       } finally {
+        requestAbortRef.current = null;
         setIsTyping(false);
       }
     },
-    [conversationHistory, isTyping]
+    [conversationHistory, isTyping, speakText]
   );
 
   const clearConversation = useCallback(() => {
-    const welcome = createWelcomeMessage();
-    setMessages([welcome]);
+    setMessages([]);
     setActiveError(null);
+    sessionStorage.removeItem(STORAGE_KEY);
   }, []);
+
+  const handleCloseChat = useCallback(() => {
+    requestAbortRef.current?.abort();
+    requestAbortRef.current = null;
+    setIsTyping(false);
+
+    recognitionRef.current?.stop();
+    setIsListening(false);
+
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+
+    setInput("");
+    clearConversation();
+    setIsOpen(false);
+  }, [clearConversation]);
 
   const isNearEmpty = messages.length <= 1;
 
@@ -181,7 +342,7 @@ export default function Chatbot() {
         className={`fixed inset-0 bg-black/20 transition-opacity duration-300 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setIsOpen(false)}
+        onClick={handleCloseChat}
         aria-hidden="true"
       />
 
@@ -213,6 +374,14 @@ export default function Chatbot() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  aria-label={isVoiceOutputEnabled ? "Disable voice output" : "Enable voice output"}
+                  onClick={() => setIsVoiceOutputEnabled((prev) => !prev)}
+                  className="h-8 w-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center"
+                >
+                  {isVoiceOutputEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                </button>
+                <button
+                  type="button"
                   aria-label="Clear conversation"
                   onClick={clearConversation}
                   className="h-8 w-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center"
@@ -222,7 +391,7 @@ export default function Chatbot() {
                 <button
                   type="button"
                   aria-label="Close support assistant"
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleCloseChat}
                   className="h-8 w-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center"
                 >
                   <X size={16} />
@@ -333,6 +502,12 @@ export default function Chatbot() {
               </p>
             )}
 
+            {isListening && (
+              <p className="text-xs text-[#119156] mb-2" role="status" aria-live="polite">
+                Listening... speak your message now.
+              </p>
+            )}
+
             <div className="flex items-end gap-2 rounded-xl border border-gray-300 px-3 py-2 focus-within:border-[#119156] focus-within:ring-2 focus-within:ring-[#119156]/20">
               <textarea
                 ref={inputRef}
@@ -350,6 +525,15 @@ export default function Chatbot() {
                   }
                 }}
               />
+              <button
+                type="button"
+                aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                onClick={toggleListening}
+                disabled={!isVoiceInputSupported || isTyping}
+                className="h-9 w-9 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+              </button>
               <button
                 type="button"
                 aria-label="Send message"

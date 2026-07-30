@@ -8,11 +8,16 @@ type ChatApiResponse = {
     error?: string;
 };
 
-export async function chat(messages: ClientChatMessage[]): Promise<string> {
+type ChatOptions = {
+    signal?: AbortSignal;
+};
+
+export async function chat(messages: ClientChatMessage[], options?: ChatOptions): Promise<string> {
     const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages }),
+        signal: options?.signal,
     });
 
     const data = (await response.json()) as ChatApiResponse;
