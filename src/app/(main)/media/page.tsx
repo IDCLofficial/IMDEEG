@@ -5,9 +5,10 @@ import Footer from "../../components/Footer";
 import CTASection from "../../components/CTASection";
 import getMedia from "./media";
 
+export const dynamic = "force-dynamic";
+
 async function MediaContent() {
   const media = await getMedia();
-  console.log(media)
   return <MediaGalleryGrid items={media || { items: [], total: 0 }} />;
 }
 
