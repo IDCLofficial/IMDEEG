@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DatasetSchema } from "@/app/components/StructuredData";
 
 export const metadata: Metadata = {
   title: "Digital Economy Data & Statistics | IMDEEG",
@@ -43,5 +44,10 @@ export default function DataLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <DatasetSchema />
+      {children}
+    </>
+  );
 }

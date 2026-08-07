@@ -6,6 +6,7 @@ import { Navbar } from "@/app/components/Navbar";
 import BootcampAdModal from "@/app/components/BootcampAdModal";
 // import Chatbot from "@/app/components/Chatbot";
 import Chatbot from "../components/Chatbot";
+import { OrganizationSchema } from "@/app/components/StructuredData";
 const defaultTitle = 'Imo State Ministry of Digital Economy and E-Governance';
 const defaultDescription = 'Driving digital transformation and e-governance in Imo State. We are committed to leveraging technology to improve governance, empower citizens, and create a digitally inclusive society for all Imolites.';
 const siteUrl = 'https://mdeeg.im.gov.ng';
@@ -129,6 +130,7 @@ export default function RootLayout({
       <body
         className={`antialiased ${satoshiFont.className}`}
       >
+        <OrganizationSchema />
         <BootcampAdModal />
         <Navbar />
         <PageTransitionWrapper>

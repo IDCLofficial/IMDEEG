@@ -20,13 +20,8 @@ Disallow: /private/
 Disallow: /*.json
 Disallow: /node_modules/
 
-# Crawl delay settings (in seconds)
-# These values help prevent server overload
-Crawl-delay: 1
-
 # Sitemap location
 Sitemap: https://mdeeg.im.gov.ng/sitemap.xml
-Sitemap: https://mdeeg.im.gov.ng/sitemap-news.xml
 
 # Google Bot specific settings
 User-agent: Googlebot

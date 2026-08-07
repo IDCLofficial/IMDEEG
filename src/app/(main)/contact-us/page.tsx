@@ -5,10 +5,12 @@ import ContactFormSection from "./ContactFormSection";
 import ContactImageSection from "./ContactImageSection";
 import ContactCTASection from "./ContactCTASection";
 import Footer from "@/app/components/Footer";
+import { LocalBusinessSchema } from "@/app/components/StructuredData";
 
 export default function ContactUsPage() {
   return (
     <main className="min-h-screen w-full bg-white flex flex-col">
+      <LocalBusinessSchema />
       <ContactHeroSection title="Contact Us" />
       <section className="w-full mx-auto py-8 md:py-20 px-4 md:px-12 flex flex-col gap-8 md:gap-10">
         <div className="flex flex-col md:flex-row gap-8 relative">
