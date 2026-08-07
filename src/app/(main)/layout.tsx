@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "../../app/globals.css";
+import "@/app/globals.css"
 import PageTransitionWrapper from "@/app/components/PageTransitionWrapper";
 import { Navbar } from "@/app/components/Navbar";
 import BootcampAdModal from "@/app/components/BootcampAdModal";
@@ -104,17 +104,17 @@ const satoshiFont = localFont({
     {
       path: "../../fonts/satoshi-cdnfonts/Satoshi-Medium.otf",
       weight: "500",
-      style: "medium",
+      style: "normal",
     },
     {
       path: "../../fonts/satoshi-cdnfonts/Satoshi-Italic.otf",
-      weight: "500",
-      style: "medium",
+      weight: "400",
+      style: "italic",
     },
     {
       path: "../../fonts/satoshi-cdnfonts/Satoshi-Bold.otf",
-      weight: "500",
-      style: "medium",
+      weight: "700",
+      style: "normal",
     },
   ],
 });
@@ -127,6 +127,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://pulse-track.onrender.com/tracker.min.js" data-key={process.env.PULSE_TRACK_KEY} async></script>
+      </head>
       <body
         className={`antialiased ${satoshiFont.className}`}
       >
