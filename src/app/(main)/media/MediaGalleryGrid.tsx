@@ -50,9 +50,9 @@ const MediaGalleryGrid: React.FC<MediaGalleryGridProps> = ({ items}:MediaGallery
               key={idx}
               image={`https:${item.fields.img.fields.file.url}`}
               title={item.fields.title}
-              isVideo={item.fields.img.isVideo}
+              isVideo={item.fields.isVideo}
               onClick={() => {
-                if (!item.fields.img.isVideo) {
+                if (!item.fields.isVideo) {
                   openViewer(`https:${item.fields.img.fields.file.url}`, item.fields.title);
                 }
               }}

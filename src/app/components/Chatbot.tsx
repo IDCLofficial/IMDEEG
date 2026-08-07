@@ -63,7 +63,7 @@ const STORAGE_KEY = "imdeeg.chat.session.v1";
 const MAX_INPUT_LENGTH = 1000;
 
 function nowLabel(timestamp: number): string {
-  return new Date(timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date(timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
 }
 
 function createWelcomeMessage(): UIMessage {

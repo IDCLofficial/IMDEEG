@@ -1,22 +1,17 @@
-import React from "react";
+import React, { Suspense } from "react";
 import MediaHeroSection from "./MediaHeroSection";
 import MediaGalleryGrid from "./MediaGalleryGrid";
 import Footer from "../../components/Footer";
 import CTASection from "../../components/CTASection";
 import getMedia from "./media";
-import { Media } from "../../../../lib/types";
-import { contentfulService } from "../../../../lib/contentful";
 
-interface MediaGalleryGridProps {
-  items: {
-    items: Media[];
-    total: number;
-  };
+async function MediaContent() {
+  const media = await getMedia();
+  console.log(media)
+  return <MediaGalleryGrid items={media || { items: [], total: 0 }} />;
 }
 
-export default async function MediaPage() {
-  const media = await getMedia();
-  const ministries = await contentfulService.getMinistries();
+export default function MediaPage() {
   return (
     <main className="min-h-screen w-full bg-[#F7F9FA] flex flex-col">
       <MediaHeroSection
@@ -25,7 +20,9 @@ export default async function MediaPage() {
         backgroundImage="/images/heroImage.png"
       />
       <section className="w-full max-w-7xl mx-auto py-12 px-4">
-        <MediaGalleryGrid items={media || { items: [], total: 0 }} />
+        <Suspense fallback={<div className="w-full flex justify-center py-8"><p className="text-gray-500">Loading gallery...</p></div>}>
+          <MediaContent />
+        </Suspense>
       </section>
       <CTASection 
         heading="Ready to Experience the New Imo?"

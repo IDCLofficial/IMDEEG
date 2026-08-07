@@ -102,129 +102,90 @@ export interface NewsPost {
 } 
 
 export interface Media {
-    metadata:{
-        "tags":[],
-        "concepts":[]
-    },
-    sys:{
-        space:{
-            sys:{
-                type:"Link",
-                linkType:"Space",
-                id:"g08mvfhb24ji"
-            }
-        },
-        id:"5uU32OJb2dDRVVvCluea7H",
-        type:"Entry",
-        createdAt:"2025-08-13T09:42:07.299Z",
-        updatedAt:"2025-08-13T09:42:07.299Z",
-        environment:{
-            sys:{
-                id:"master",
-                type:"Link",
-                linkType:"Environment"
-            }
-        },
-        publishedVersion:4,
-        revision:1,
-        contentType:{
-            sys:{
-                type:"Link",
-                linkType:"ContentType",
-                id:"media"
-            }
-        },
-        locale:"en-US"
-    },
-    fields:{
-        title:"fibre optics",
-        img:{
-            metadata:{
-                tags:[],
-                concepts:[]
-            },
-            sys:{
-                space:{
-                    sys:{
-                        type:"Link",
-                        linkType:"Space",
-                        id:"g08mvfhb24ji"
-                    }
-                },
-                id:"1f7AgrPToazvtgXiEc1J8Z",
-                type:"Asset",
-                createdAt:"2025-08-13T09:41:53.080Z",
-                updatedAt:"2025-08-13T09:41:53.080Z",
-                environment:{
-                    sys:{
-                        id:"master",
-                        type:"Link",
-                        linkType:"Environment"
-                    }
-                },
-                publishedVersion:5,
-                revision:1,
-                locale:"en-US"
-            },
-            fields:{
-                title:"dsdasdasd",
-                description:"dasdada",
-                file:{
-                    url:"//images.ctfassets.net/g08mvfhb24ji/1f7AgrPToazvtgXiEc1J8Z/6d833ffc11080891d58b733b065537f6/fiber-optic.webp",
-                    details:{
-                        size:16558,
-                        image:{
-                            width:750,
-                            height:430
-                        }
-                    },
-                    fileName:"fiber-optic.webp",
-                    contentType:"image/webp"
-                }
-            },
-            "isVideo":false,
-            "ministry":{
-                metadata:{
-                    tags:[],
-                    concepts:[]
-                },
-                sys:{
-                    space:{
-                        sys:{
-                            type:"Link",
-                            linkType:"Space",
-                            id:"g08mvfhb24ji"
-                        }
-                    },
-                    id:"1sOjmVJdowuZ4ZUs23nVQJ",
-                    type:"Entry",
-                    createdAt:"2025-08-13T08:00:41.065Z",
-                    updatedAt:"2025-08-13T08:00:41.065Z",
-                    environment:{
-                        sys:{
-                            id:"master",
-                            type:"Link",
-                            linkType:"Environment"
-                        }
-                    },
-                    publishedVersion:5,
-                    revision:1,
-                    contentType:{
-                        sys:{
-                            type:"Link",
-                            linkType:"ContentType",
-                            id:"ministry"
-                        }
-                    },
-                    locale:"en-US"
-                },
-                fields:{
-                    ministryName:"Ministry of Science, Innovation and Technology",
-                    slug:"ministry-of-science-innovation-and-technology"
-                }
-            }
-        }
-    }
+    metadata: {
+        tags: string[];
+        concepts: string[];
+    };
+    sys: {
+        space: {
+            sys: {
+                type: string;
+                linkType: string;
+                id: string;
+            };
+        };
+        id: string;
+        type: string;
+        createdAt: string;
+        updatedAt: string;
+        environment: {
+            sys: {
+                id: string;
+                type: string;
+                linkType: string;
+            };
+        };
+        publishedVersion: number;
+        revision: number;
+        contentType: {
+            sys: {
+                type: string;
+                linkType: string;
+                id: string;
+            };
+        };
+        locale: string;
+    };
+    fields: {
+        title: string;
+        img: {
+            metadata: {
+                tags: string[];
+                concepts: string[];
+            };
+            sys: {
+                space: {
+                    sys: {
+                        type: string;
+                        linkType: string;
+                        id: string;
+                    };
+                };
+                id: string;
+                type: string;
+                createdAt: string;
+                updatedAt: string;
+                environment: {
+                    sys: {
+                        id: string;
+                        type: string;
+                        linkType: string;
+                    };
+                };
+                publishedVersion: number;
+                revision: number;
+                locale: string;
+            };
+            fields: {
+                title: string;
+                description: string;
+                file: {
+                    url: string;
+                    details: {
+                        size: number;
+                        image: {
+                            width: number;
+                            height: number;
+                        };
+                    };
+                    fileName: string;
+                    contentType: string;
+                };
+            };
+        };
+        isVideo: boolean;
+        ministry?: Ministry;
+    };
 }
 
 export interface Events {
