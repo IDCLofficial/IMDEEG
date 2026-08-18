@@ -313,3 +313,20 @@ export interface Category {
         category_name: string;
     };
 }
+
+export interface Publication {
+    key: string;
+    title: string;
+    filename: string;
+    size: number;
+    lastModified: string;
+    contentType: string;
+    category: string;
+    downloadUrl: string;
+    viewUrl: string;
+}
+
+export interface PublicationsResponse {
+    items: Publication[];
+    total: number;
+}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -11,6 +10,7 @@ const navLinks = [
     { label: "Departments", href: "/departments" },
     { label: "Projects", href: "/projects" },
     { label: "Data", href: "/data" },
+    { label: "Policy Repository", href: "/policy-repository" },
     { label: "News", href: "/news" },
     { label: "Events", href: "/events" },
     { label: "Media", href: "/media" },
@@ -31,7 +31,7 @@ const NavLinks = ({ mobile = false, onClickLink }: NavLinksProps) => {
                     <li key={link.label}>
                         <Link
                             href={link.href}
-                            className={`hover:text-tertiary-green transition-colors duration-200 ${pathname.split("/")[1] === link.href.split("/")[1] ? "text-tertiary-green" : mobile ? "text-white text-lg font-semibold" : "text-white "}`}
+                            className={`hover:text-tertiary-green transition-colors duration-200 ${pathname.split("/")[1] === link.href.split("/")[1] ? "text-tertiary-green" : mobile ? "text-white text-lg font-semibold" : "text-white font-medium"}`}
                             onClick={onClickLink}
                         >
                             {link.label}
