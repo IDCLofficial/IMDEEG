@@ -5,6 +5,7 @@ import { DataHeroSection } from './DataHeroSection';
 import { DataTabsSection } from './DataTabsSection';
 import { SkillupIMOSection } from './SkillupIMOSection';
 import { BroadbandInfrastructureSection } from './BroadbandInfrastructureSection';
+import { SummerTechBootcampSection } from './SummerTechBootcampSection';
 
 interface Participant {
   'S/N': number;
@@ -17,6 +18,7 @@ interface Participant {
 const TABS = [
   { id: 'skillupimo', label: 'Skillup Imo Data', icon: '🎓' },
   { id: 'broadband', label: 'Broadband Infrastructure Data', icon: '📡' },
+  { id: 'summerbootcamp', label: 'Summer Tech Bootcamp 2026', icon: '💻' },
 ];
 
 export default function DataPage() {
@@ -300,6 +302,7 @@ export default function DataPage() {
         />
       )}
       {activeTab === 'broadband' && <BroadbandInfrastructureSection />}
+      {activeTab === 'summerbootcamp' && <SummerTechBootcampSection />}
     </div>
   );
 }
