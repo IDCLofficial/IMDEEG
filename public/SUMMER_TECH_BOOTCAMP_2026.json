@@ -5918,5 +5918,53 @@
     "Emergency Contact Number": "08034286518",
     "Payment Receipt": "https://drive.google.com/open?id=1AKrsw1CY4J1vE8iIH0VXsfqAhYGVkTk7",
     "lga": "Uncertain - needs address verification"
+  },
+  {
+    "Participant's Full Name": "CHUKWUEMEKA DAVID EMELU",
+    "Gender": "Male",
+    "Date of Birth": "9/21/2013",
+    "Age": 12,
+    "School Name": "COMMAND SECONDARY SCHOOL",
+    "Current Class": "JSS2",
+    "Residential Address": "Federal Housing Estate WORLD BANK",
+    "Parent/Guardian's Full Name": "Joy Emelu",
+    "Relationship to Participant": "Mother",
+    "WhatsApp Number": "08160420755",
+    "Email Address (Optional)": null,
+    "Emergency Contact Number": "08160420755",
+    "Payment Receipt": "https://drive.google.com/open?id=1Yu5ahY9VyrxhQq1X4AT1DfKCMmkHTshi",
+    "lga": "Owerri Municipal"
+  },
+  {
+    "Participant's Full Name": "SAM-ONUMA DAVID DE-ORACLE",
+    "Gender": "Male",
+    "Date of Birth": "10/15/2016",
+    "Age": 10,
+    "School Name": "ROYAL STIRLING INT'L OWERRI",
+    "Current Class": "GRADE 5",
+    "Residential Address": "21A MCC ROAD URATTA OWEERI",
+    "Parent/Guardian's Full Name": "MR. & MRS. SAM ONUOHA ONUMA",
+    "Relationship to Participant": "Father",
+    "WhatsApp Number": "08038495480",
+    "Email Address (Optional)": "onumaonuoha@gmail.com",
+    "Emergency Contact Number": "8038495480",
+    "Payment Receipt": "https://drive.google.com/open?id=1zxDic_diKziNTqqTRVj4Spi9WGlXF1qE",
+    "lga": "Owerri North"
+  },
+  {
+    "Participant's Full Name": "KENNETH JONATHAN CHIDUBEM",
+    "Gender": "Male",
+    "Date of Birth": "2/25/2011",
+    "Age": 15,
+    "School Name": "Bishop Shanhan College",
+    "Current Class": "Done with school",
+    "Residential Address": "Akabo ikeduru owerri",
+    "Parent/Guardian's Full Name": "Okolie kenneth chinedu",
+    "Relationship to Participant": "Father",
+    "WhatsApp Number": "07010536678",
+    "Email Address (Optional)": "Princekenchido@yahoo.com",
+    "Emergency Contact Number": "07063501848",
+    "Payment Receipt": "https://drive.google.com/open?id=12Ke9fva8gl9XrdA_nxY8eLvJ4-Q5MCM3",
+    "lga": "Ikeduru"
   }
 ]
