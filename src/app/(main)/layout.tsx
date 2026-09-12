@@ -134,7 +134,7 @@ export default function RootLayout({
         className={`antialiased ${satoshiFont.className}`}
       >
         <OrganizationSchema />
-        <BootcampAdModal />
+        /*<BootcampAdModal />*/
         <Navbar />
         <PageTransitionWrapper>
           {children}
