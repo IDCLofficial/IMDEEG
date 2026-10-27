@@ -59,10 +59,6 @@ export default function Home() {
 								))}
 							</ul>
 						</section>
-
-						<p className='skillup-sitemap'>
-							<Link href='/sitemap'>Sitemap</Link>
-						</p>
 					</aside>
 
 					<section className='skillup-form' aria-label='Registration form'>
