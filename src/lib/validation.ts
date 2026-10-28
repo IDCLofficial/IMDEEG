@@ -66,12 +66,7 @@ export const registrationSchema = z.object({
 	imssbn: z
 		.string()
 		.trim()
-		.min(4, "Enter your IMSSBN number")
-		.max(30, "IMSSBN is too long")
-		.regex(
-			/^[A-Za-z0-9\-/]+$/,
-			"Use only letters, numbers, dashes and slashes",
-		),
+		.regex(/^\d{10}$/, "IMSSBN must be exactly 10 digits"),
 
 	localGovernment: z.enum(IMO_LGAS, choose("your Local Government Area")),
 	town: z.string().trim().min(2, "Enter your town").max(100),

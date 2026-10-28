@@ -137,11 +137,15 @@ export function RegistrationForm() {
 		if (errors[name]) setErrors((e) => ({ ...e, [name]: "" }));
 	};
 
-	const bind = (name: string) => ({
+	const bind = (name: string, digitsOnly = false) => ({
 		id: name,
 		name,
 		value: values[name],
-		onChange: (e: { target: { value: string } }) => set(name, e.target.value),
+		onChange: (e: { target: { value: string } }) =>
+			set(
+				name,
+				digitsOnly ? e.target.value.replace(/\D/g, "") : e.target.value,
+			),
 		"aria-invalid": errors[name] ? true : undefined,
 		"aria-describedby": errors[name] ? `${name}-error` : undefined,
 	});
@@ -302,9 +306,10 @@ export function RegistrationForm() {
 							label='Phone number'
 						>
 							<input
-								{...bind("phoneNumber")}
+								{...bind("phoneNumber", true)}
 								type='tel'
-								inputMode='tel'
+								inputMode='numeric'
+								maxLength={13}
 								autoComplete='tel'
 								placeholder='08012345678'
 							/>
@@ -336,14 +341,24 @@ export function RegistrationForm() {
 					<div className='row'>
 						<Field error={errors.nin} name='nin' label='NIN' hint='11 digits'>
 							<input
-								{...bind("nin")}
+								{...bind("nin", true)}
 								inputMode='numeric'
 								maxLength={11}
 								autoComplete='off'
 							/>
 						</Field>
-						<Field error={errors.imssbn} name='imssbn' label='IMSSBN number'>
-							<input {...bind("imssbn")} autoComplete='off' />
+						<Field
+							error={errors.imssbn}
+							name='imssbn'
+							label='IMSSBN number'
+							hint='10 digits'
+						>
+							<input
+								{...bind("imssbn", true)}
+								inputMode='numeric'
+								maxLength={10}
+								autoComplete='off'
+							/>
 						</Field>
 					</div>
 				</fieldset>
@@ -475,10 +490,19 @@ export function RegistrationForm() {
 							label='Phone number'
 							optional
 						>
-							<input {...bind("nokPhone")} type='tel' inputMode='tel' />
+							<input
+								{...bind("nokPhone", true)}
+								type='tel'
+								inputMode='numeric'
+								maxLength={13}
+							/>
 						</Field>
 						<Field error={errors.nokNin} name='nokNin' label='NIN' optional>
-							<input {...bind("nokNin")} inputMode='numeric' maxLength={11} />
+							<input
+								{...bind("nokNin", true)}
+								inputMode='numeric'
+								maxLength={11}
+							/>
 						</Field>
 					</div>
 				</fieldset>
