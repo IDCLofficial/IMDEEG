@@ -20,6 +20,7 @@ import {
 	TIME_FRAME,
 } from "@/lib/constants";
 import { registrationSchema } from "@/lib/validation";
+import { isBlockedNin } from "@/lib/blockedNins";
 
 type Values = Record<string, string>;
 type Errors = Record<string, string>;
@@ -78,6 +79,9 @@ const findMatchingRecord = (
 	records.find(
 		(record) => normalizeName(matchField(record)) === normalizeName(value),
 	);
+
+const BLOCKED_NIN_MESSAGE =
+	"This NIN has already participated in this programme and cannot register again.";
 
 const INITIAL: Values = {
 	fullName: "",
@@ -149,13 +153,22 @@ const STEPS = [
 
 function validate(values: Values, fields?: string[]): Errors {
 	const result = registrationSchema.safeParse(values);
-	if (result.success) return {};
 	const errors: Errors = {};
-	for (const issue of result.error.issues) {
-		const key = String(issue.path[0]);
-		if (fields && !fields.includes(key)) continue;
-		if (!errors[key]) errors[key] = issue.message;
+	if (!result.success) {
+		for (const issue of result.error.issues) {
+			const key = String(issue.path[0]);
+			if (fields && !fields.includes(key)) continue;
+			if (!errors[key]) errors[key] = issue.message;
+		}
 	}
+
+	const nin = values.nin?.trim() ?? "";
+	if (nin && isBlockedNin(nin)) {
+		if (!fields || fields.includes("nin")) {
+			errors.nin = BLOCKED_NIN_MESSAGE;
+		}
+	}
+
 	return errors;
 }
 
@@ -379,6 +392,10 @@ export function RegistrationForm() {
 
 	const set = (name: string, value: string) => {
 		setValues((v) => ({ ...v, [name]: value }));
+		if (name === "nin" && value.trim() && isBlockedNin(value.trim())) {
+			setErrors((e) => ({ ...e, nin: BLOCKED_NIN_MESSAGE }));
+			return;
+		}
 		if (errors[name]) setErrors((e) => ({ ...e, [name]: "" }));
 	};
 
@@ -414,6 +431,9 @@ export function RegistrationForm() {
 		setStep(i);
 		topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 	};
+
+	const hasBlockedNinError =
+		step === 0 && values.nin.trim() !== "" && isBlockedNin(values.nin.trim());
 
 	function next() {
 		const found = validate(values, STEPS[step].fields);
@@ -810,7 +830,11 @@ export function RegistrationForm() {
 						Back
 					</button>
 				)}
-				<button type='submit' className='btn btn-primary' disabled={submitting}>
+				<button
+					type='submit'
+					className='btn btn-primary'
+					disabled={submitting || hasBlockedNinError}
+				>
 					{step < STEPS.length - 1
 						? "Continue"
 						: submitting
