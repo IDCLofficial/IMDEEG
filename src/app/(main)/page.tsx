@@ -15,6 +15,10 @@ import { LatestNews } from "./news/[slug]/LatestNews";
 import Chatbot from "../components/Chatbot";
 import SkillUpAd from "@/components/SkillUpAd";
 
+export const metadata = {
+	alternates: { canonical: "/" },
+};
+
 export default async function Home() {
   const latestNewsList = await getNewsListByCategoryId("2XfChLa0hKTuDeJOciEZTI", 1);
   return (

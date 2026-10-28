@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     description: "Ongoing digital transformation and e-governance projects in Imo State",
     url: "https://mdeeg.im.gov.ng/projects",
     type: "website",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary",

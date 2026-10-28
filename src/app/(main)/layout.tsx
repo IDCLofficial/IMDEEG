@@ -7,14 +7,16 @@ import BootcampAdModal from "@/app/components/BootcampAdModal";
 // import Chatbot from "@/app/components/Chatbot";
 import Chatbot from "../components/Chatbot";
 import { OrganizationSchema } from "@/app/components/StructuredData";
-const defaultTitle = 'Imo State Ministry of Digital Economy and E-Governance';
-const defaultDescription = 'Driving digital transformation and e-governance in Imo State. We are committed to leveraging technology to improve governance, empower citizens, and create a digitally inclusive society for all Imolites.';
+const defaultTitle = 'Imo State Ministry of Digital Economy & E-Governance (MDEEG)';
+const brandName = 'Imo State Ministry of Digital Economy and E-Governance';
+const defaultDescription = 'Official website of the Imo State Ministry of Digital Economy and E-Governance (MDEEG): e-government platforms, digital skills training through SkillUp Imo, and the Imo Digital Economy Agenda.';
 const siteUrl = 'https://mdeeg.im.gov.ng';
 
 export const metadata: Metadata = {
   title: {
     default: defaultTitle,
-    template: `%s | ${defaultTitle}`
+    // Page titles already carry the brand (e.g. "Events | IMDEEG"), so no suffix is appended.
+    template: '%s'
   },
   description: defaultDescription,
   keywords: [
@@ -27,6 +29,9 @@ export const metadata: Metadata = {
     'Innovation',
     'Technology',
     'Digital Transformation',
+    'SkillUp Imo',
+    'Imo Digital Economy Agenda',
+    'MDEEG',
     'E-Government',
     'Smart City',
     'Owerri',
@@ -40,12 +45,12 @@ export const metadata: Metadata = {
     title: defaultTitle,
     description: defaultDescription,
     url: siteUrl,
-    siteName: defaultTitle,
+    siteName: brandName,
     locale: 'en_US',
     type: 'website',
     images: [
       {
-        url: '/logo.png',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: defaultTitle,
@@ -57,7 +62,7 @@ export const metadata: Metadata = {
     title: defaultTitle,
     description: defaultDescription,
     creator: '@ImoDigitalCity',
-    images: ['/logo.png'],
+    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -77,9 +82,6 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   themeColor: '#0033A0',
-  alternates: {
-    canonical: siteUrl,
-  },
   formatDetection: {
     email: true,
     address: true,

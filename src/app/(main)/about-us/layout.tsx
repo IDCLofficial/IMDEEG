@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "IMDEEG Ministry Logo",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "About IMDEEG",
     description: "Imo Ministry of Digital Economy and E-Governance",
-    images: ["/logo.png"],
+    images: ["/og-image.jpg"],
   },
   alternates: {
     canonical: "https://mdeeg.im.gov.ng/about-us",
