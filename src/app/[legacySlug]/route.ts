@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getNewsBySlug } from "../(main)/news/newsList";
 
 // The previous (WordPress) site served articles from the root, e.g. /some-article-slug/.
-// Those URLs are still indexed. Articles were migrated to /news/<same-slug>, so redirect them.
+// Those URLs are still indexed. If an article with the same slug exists in the CMS, redirect to
+// /news/<slug>; otherwise return a real 404 (most old articles were not migrated).
 // A route handler (not a page) is used so crawlers get a real HTTP 308/404, not a streamed 200.
 // Static routes (/about-us, /news, ...) take precedence over this dynamic segment.
 export async function GET(request: Request, { params }: { params: Promise<{ legacySlug: string }> }) {
