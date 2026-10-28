@@ -1,13 +1,19 @@
 "use client";
 
-import { FormEvent, ReactElement, useRef, useState } from "react";
+import {
+	FormEvent,
+	ReactElement,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import {
 	AGE_BRACKETS,
 	CENTRES,
 	COURSES,
 	DIGITAL_SKILL_LEVELS,
 	GENDERS,
-	IMO_LGAS,
 	MARITAL_STATUSES,
 	QUALIFICATIONS,
 	RELATIONSHIPS,
@@ -17,6 +23,61 @@ import { registrationSchema } from "@/lib/validation";
 
 type Values = Record<string, string>;
 type Errors = Record<string, string>;
+type ApiRecord = {
+	id?: string | number;
+	name?: string;
+	name_en?: string;
+	name_local?: string;
+	label?: string;
+	state?: string;
+	state_name?: string;
+	parent_id?: string | number;
+	parent_name_en?: string;
+	parent_name_local?: string;
+	state_id?: string | number;
+	lga_id?: string | number;
+	ward_id?: string | number;
+	[key: string]: unknown;
+};
+
+const normalizeName = (value: unknown) =>
+	String(value ?? "")
+		.trim()
+		.toLowerCase();
+
+const getRecordName = (record: ApiRecord) =>
+	String(
+		record.name ??
+			record.name_en ??
+			record.name_local ??
+			record.label ??
+			record.state ??
+			record.state_name ??
+			"",
+	);
+
+const normalizeList = (payload: unknown): ApiRecord[] => {
+	if (!payload) return [];
+	if (Array.isArray(payload)) return payload as ApiRecord[];
+	if (Array.isArray((payload as { data?: unknown }).data))
+		return (payload as { data: ApiRecord[] }).data;
+	if (Array.isArray((payload as { results?: unknown }).results))
+		return (payload as { results: ApiRecord[] }).results;
+	if (Array.isArray((payload as { items?: unknown }).items))
+		return (payload as { items: ApiRecord[] }).items;
+	if (Array.isArray((payload as { entities?: unknown }).entities))
+		return (payload as { entities: ApiRecord[] }).entities;
+	return [];
+};
+
+const findMatchingRecord = (
+	records: ApiRecord[],
+	value: string,
+	matchField: (record: ApiRecord) => string,
+) =>
+	records.find(
+		(record) => normalizeName(matchField(record)) === normalizeName(value),
+	);
 
 const INITIAL: Values = {
 	fullName: "",
@@ -123,6 +184,73 @@ function Field(props: {
 	);
 }
 
+function SearchSelect(props: {
+	name: string;
+	value: string;
+	options: ApiRecord[];
+	placeholder: string;
+	onChange: (value: string) => void;
+	label?: string;
+	allowOther?: boolean;
+	otherLabel?: string;
+}) {
+	const listId = `${props.name}-options`;
+	const optionValue = (record: ApiRecord) => getRecordName(record);
+	const optionKey = (record: ApiRecord, index: number) => {
+		const uniqueId = String(
+			record.id ??
+				record.ward_id ??
+				record.lga_id ??
+				record.parent_id ??
+				record.state_id ??
+				record.name_en ??
+				record.name_local ??
+				record.label ??
+				record.state ??
+				index,
+		);
+		return `${props.name}-${uniqueId}`;
+	};
+	const otherLabel = props.otherLabel ?? "Other";
+	const matchExists = (query: string) =>
+		props.options.some((option) => {
+			const current = optionValue(option);
+			return normalizeName(current) === normalizeName(query);
+		});
+	const hasNoMatch =
+		props.allowOther && props.value.trim() !== "" && !matchExists(props.value);
+
+	return (
+		<>
+			<input
+				id={props.name}
+				name={props.name}
+				list={listId}
+				value={props.value}
+				placeholder={props.placeholder}
+				autoComplete='off'
+				onChange={(event) => props.onChange(event.target.value)}
+			/>
+			{hasNoMatch && (
+				<button
+					type='button'
+					className='btn btn-ghost btn-small'
+					onClick={() => props.onChange(otherLabel)}
+					style={{ marginTop: 8 }}
+				>
+					{otherLabel}
+				</button>
+			)}
+			<datalist id={listId}>
+				{props.options.map((option, index) => (
+					<option key={optionKey(option, index)} value={optionValue(option)} />
+				))}
+				{props.allowOther && <option value={otherLabel} />}
+			</datalist>
+		</>
+	);
+}
+
 export function RegistrationForm() {
 	const [step, setStep] = useState(0);
 	const [values, setValues] = useState<Values>(INITIAL);
@@ -130,7 +258,124 @@ export function RegistrationForm() {
 	const [submitting, setSubmitting] = useState(false);
 	const [formError, setFormError] = useState("");
 	const [reference, setReference] = useState("");
+	const [stateOptions, setStateOptions] = useState<ApiRecord[]>([]);
+	const [lgaOptions, setLgaOptions] = useState<ApiRecord[]>([]);
+	const [wardOptions, setWardOptions] = useState<ApiRecord[]>([]);
+	const [courseStudyOptions, setCourseStudyOptions] = useState<string[]>([]);
 	const topRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		let ignore = false;
+		const loadLocationData = async () => {
+			try {
+				const [statesRes, lgasRes, wardsRes, studyOptionsRes] =
+					await Promise.all([
+						fetch("https://api.openadmindata.org/api/v1/ng/state.json").then(
+							(response) => response.json(),
+						),
+						fetch("https://api.openadmindata.org/api/v1/ng/lga.json").then(
+							(response) => response.json(),
+						),
+						fetch("https://api.openadmindata.org/api/v1/ng/ward.json").then(
+							(response) => response.json(),
+						),
+						fetch("/api/universities").then((response) => response.json()),
+					]);
+
+				if (ignore) return;
+
+				const states = normalizeList(statesRes);
+				const lgas = normalizeList(lgasRes);
+				const wards = normalizeList(wardsRes);
+				const studyOptions = Array.isArray(studyOptionsRes)
+					? [
+							...new Set(
+								studyOptionsRes
+									.map((value) => String(value).trim())
+									.filter(Boolean),
+							),
+						].sort((a, b) => a.localeCompare(b))
+					: [];
+
+				setStateOptions(states);
+				setLgaOptions(lgas);
+				setWardOptions(wards);
+				setCourseStudyOptions(studyOptions);
+			} catch {
+				if (!ignore) {
+					setStateOptions([]);
+					setLgaOptions([]);
+					setWardOptions([]);
+					setCourseStudyOptions([]);
+				}
+			}
+		};
+
+		void loadLocationData();
+		return () => {
+			ignore = true;
+		};
+	}, []);
+
+	const selectedState = useMemo(() => {
+		const stateName = values.stateOfOrigin || "Imo";
+		return (
+			stateOptions.find((state) => {
+				return normalizeName(getRecordName(state)) === normalizeName(stateName);
+			}) ??
+			stateOptions.find((state) => {
+				return normalizeName(getRecordName(state)).includes("imo");
+			})
+		);
+	}, [stateOptions, values.stateOfOrigin]);
+
+	const localGovernmentOptions = useMemo(() => {
+		if (!selectedState) return lgaOptions;
+		const selectedStateId = String(
+			selectedState.id ??
+				selectedState.state_id ??
+				selectedState.parent_id ??
+				"",
+		);
+
+		return lgaOptions.filter((lga) => {
+			const parentId = String(lga.parent_id ?? lga.state_id ?? "");
+			return (
+				parentId === selectedStateId ||
+				normalizeName(
+					lga.state ?? lga.state_name ?? getRecordName(lga),
+				).includes("imo")
+			);
+		});
+	}, [lgaOptions, selectedState]);
+
+	const wardOptionsForLga = useMemo(() => {
+		const selectedLga = findMatchingRecord(
+			localGovernmentOptions,
+			values.localGovernment,
+			(record) => getRecordName(record),
+		);
+		if (!selectedLga) return wardOptions;
+		const selectedLgaId = String(
+			selectedLga.id ?? selectedLga.lga_id ?? selectedLga.parent_id ?? "",
+		);
+		return wardOptions.filter((ward) => {
+			const parentId = String(
+				ward.parent_id ?? ward.lga_id ?? ward.state_id ?? "",
+			);
+			return parentId === selectedLgaId;
+		});
+	}, [localGovernmentOptions, values.localGovernment, wardOptions]);
+
+	const courseOfStudyHasNoMatch =
+		values.courseOfStudy.trim() !== "" &&
+		!courseStudyOptions.some(
+			(option) => normalizeName(option) === normalizeName(values.courseOfStudy),
+		);
+
+	const resetWardIfNeeded = (nextLga: string) => {
+		if (nextLga !== values.localGovernment) set("ward", "");
+	};
 
 	const set = (name: string, value: string) => {
 		setValues((v) => ({ ...v, [name]: value }));
@@ -380,7 +625,17 @@ export function RegistrationForm() {
 							name='localGovernment'
 							label='Local Government of residence'
 						>
-							{select("localGovernment", IMO_LGAS, "Select your LGA")}
+							<SearchSelect
+								name='localGovernment'
+								value={values.localGovernment}
+								options={localGovernmentOptions}
+								placeholder='Search and select your LGA or choose Other'
+								allowOther
+								onChange={(nextValue) => {
+									set("localGovernment", nextValue);
+									resetWardIfNeeded(nextValue);
+								}}
+							/>
 						</Field>
 					</div>
 					<div className='row'>
@@ -388,7 +643,14 @@ export function RegistrationForm() {
 							<input {...bind("town")} />
 						</Field>
 						<Field error={errors.ward} name='ward' label='Ward'>
-							<input {...bind("ward")} />
+							<SearchSelect
+								name='ward'
+								value={values.ward}
+								options={wardOptionsForLga}
+								placeholder='Search and select your ward or choose Other'
+								allowOther
+								onChange={(nextValue) => set("ward", nextValue)}
+							/>
 						</Field>
 					</div>
 					<Field
@@ -452,7 +714,30 @@ export function RegistrationForm() {
 							label='Course of study'
 							optional
 						>
-							<input {...bind("courseOfStudy")} />
+							<>
+								<input
+									{...bind("courseOfStudy")}
+									list='course-of-study-options'
+									placeholder='Search and select your course of study'
+									autoComplete='off'
+								/>
+								{courseOfStudyHasNoMatch && (
+									<button
+										type='button'
+										className='btn btn-ghost btn-small'
+										onClick={() => set("courseOfStudy", "Other")}
+										style={{ marginTop: 8 }}
+									>
+										Other
+									</button>
+								)}
+								<datalist id='course-of-study-options'>
+									{courseStudyOptions.map((option) => (
+										<option key={option} value={option} />
+									))}
+									<option value='Other' />
+								</datalist>
+							</>
 						</Field>
 						<Field
 							error={errors.institution}
