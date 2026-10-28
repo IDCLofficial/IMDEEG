@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AGE_BRACKETS, CENTRES, COURSES, GENDERS, IMO_LGAS } from "./constants";
+import { AGE_BRACKETS, CENTRES, COURSES, GENDERS } from "./constants";
 
 const NG_PHONE = /^(?:\+234|234|0)[789][01]\d{8}$/;
 const strip = (v: string) => v.replace(/[\s-]/g, "");
@@ -68,7 +68,11 @@ export const registrationSchema = z.object({
 		.trim()
 		.regex(/^\d{10}$/, "IMSSBN must be exactly 10 digits"),
 
-	localGovernment: z.enum(IMO_LGAS, choose("your Local Government Area")),
+	localGovernment: z
+		.string()
+		.trim()
+		.min(1, "Select your Local Government Area")
+		.max(100),
 	town: z.string().trim().min(2, "Enter your town").max(100),
 	ward: z.string().trim().min(1, "Enter your ward").max(100),
 	residentialAddress: optionalText(250),
