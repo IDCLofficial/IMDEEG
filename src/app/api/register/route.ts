@@ -5,31 +5,35 @@ import { registrationSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
-const n = <T,>(v: T | undefined) => v ?? null;
+const n = <T>(v: T | undefined) => v ?? null;
 
 export async function POST(req: Request) {
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, message: "Invalid request." }, { status: 400 });
-  }
+	let body: unknown;
+	try {
+		body = await req.json();
+	} catch {
+		return NextResponse.json(
+			{ ok: false, message: "Invalid request." },
+			{ status: 400 },
+		);
+	}
 
-  const parsed = registrationSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, errors: parsed.error.flatten().fieldErrors },
-      { status: 422 }
-    );
-  }
-  const d = parsed.data;
+	const parsed = registrationSchema.safeParse(body);
+	if (!parsed.success) {
+		return NextResponse.json(
+			{ ok: false, errors: parsed.error.flatten().fieldErrors },
+			{ status: 422 },
+		);
+	}
+	const d = parsed.data;
 
-  // Honeypot filled in: pretend it worked, store nothing.
-  if (d.website) return NextResponse.json({ ok: true, reference: "SKILLUP-000000" });
+	// Honeypot filled in: pretend it worked, store nothing.
+	if (d.website)
+		return NextResponse.json({ ok: true, reference: "SKILLUP-000000" });
 
-  try {
-    const db = getDb();
-    const rows = await db`
+	try {
+		const db = getDb();
+		const rows = await db`
       INSERT INTO registrations (
         full_name, phone_number, email, gender, age_bracket, marital_status, state_of_origin,
         nin, imssbn, local_government, town, ward, residential_address,
@@ -46,22 +50,28 @@ export async function POST(req: Request) {
       )
       RETURNING id
     `;
-    const reference = "SKILLUP-" + String(rows[0].id).slice(0, 8).toUpperCase();
-    return NextResponse.json({ ok: true, reference }, { status: 201 });
-  } catch (err: unknown) {
-    const e = err as { code?: string; constraint?: string };
-    if (e?.code === "23505") {
-      const field = e.constraint?.includes("imssbn") ? "imssbn" : "nin";
-      const label = field === "nin" ? "NIN" : "IMSSBN";
-      return NextResponse.json(
-        { ok: false, errors: { [field]: [`This ${label} has already been registered.`] } },
-        { status: 409 }
-      );
-    }
-    console.error("Registration insert failed:", err);
-    return NextResponse.json(
-      { ok: false, message: "We could not save your registration. Please try again." },
-      { status: 500 }
-    );
-  }
+		const reference = "SKILLUP-" + String(rows[0].id).slice(0, 8).toUpperCase();
+		return NextResponse.json({ ok: true, reference }, { status: 201 });
+	} catch (err: unknown) {
+		const e = err as { code?: string; constraint?: string };
+		if (e?.code === "23505") {
+			const field = e.constraint?.includes("imssbn") ? "imssbn" : "nin";
+			const label = field === "nin" ? "NIN" : "IMSSBN";
+			return NextResponse.json(
+				{
+					ok: false,
+					errors: { [field]: [`This ${label} has already been registered.`] },
+				},
+				{ status: 409 },
+			);
+		}
+		console.error("Registration insert failed:", err);
+		return NextResponse.json(
+			{
+				ok: false,
+				message: "We could not save your registration. Please try again.",
+			},
+			{ status: 500, ...e },
+		);
+	}
 }
