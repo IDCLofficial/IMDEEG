@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     description: "Organizational departments and units driving digital transformation in Imo State",
     url: "https://mdeeg.im.gov.ng/departments",
     type: "website",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary",

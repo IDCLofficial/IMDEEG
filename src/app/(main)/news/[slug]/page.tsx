@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const news = await getNewsBySlug(slug);
 
   if (!news) {
-    return { title: "News Not Found | IMDEEG" };
+    // This route streams a 200 even for unknown slugs, so keep these soft-404s out of the index.
+    return { title: "News Not Found | IMDEEG", robots: { index: false, follow: false } };
   }
 
   const title = news.fields.title;
