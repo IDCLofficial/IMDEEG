@@ -3,6 +3,10 @@ import { getDb } from "@/lib/db";
 import { TIME_FRAME } from "@/lib/constants";
 import { registrationSchema } from "@/lib/validation";
 import { isBlockedNin } from "@/lib/blockedNins";
+import {
+	checkPreviousCohortEligibility,
+	loadPreviousCohortEntries,
+} from "@/lib/cohortEligibility";
 
 export const runtime = "nodejs";
 
@@ -40,6 +44,22 @@ export async function POST(req: Request) {
 					nin: [
 						"This NIN has already participated in this programme and cannot register again.",
 					],
+				},
+			},
+			{ status: 409 },
+		);
+	}
+
+	const cohortEligibilityError = checkPreviousCohortEligibility(
+		d,
+		loadPreviousCohortEntries(),
+	);
+	if (cohortEligibilityError) {
+		return NextResponse.json(
+			{
+				ok: false,
+				errors: {
+					[cohortEligibilityError.field]: [cohortEligibilityError.message],
 				},
 			},
 			{ status: 409 },

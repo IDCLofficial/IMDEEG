@@ -10,6 +10,7 @@
 		"generate:data-json": "node scripts/generate-website-data-json.mjs",
 		"generate:bootcamp-json": "node scripts/generate-bootcamp-data-json.mjs",
 		"scrape:website": "node scripts/scrape-website.mjs",
+		"check:cohort5-duplicates": "node scripts/check-cohort5-duplicates.mjs",
 		"db:migrate": "node --env-file=.env.local src/scripts/migrate.mjs",
 		"zod": "^3.23.8"
 	},
@@ -31,6 +32,7 @@
 		"react-markdown": "^10.1.0",
 		"rehype-raw": "^7.0.0",
 		"remark-gfm": "^4.0.1",
+		"xlsx": "^0.18.5",
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
