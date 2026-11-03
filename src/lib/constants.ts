@@ -1,4 +1,4 @@
-export const PROGRAMME_NAME = "Skillup Imo Cohort Portal";
+export const PROGRAMME_NAME = "Skillup Imo Cohort 5 Portal";
 export const PROGRAMME_ORG = "MDDEG";
 export const TIME_FRAME = "Intermediate: 4-12 weeks";
 
