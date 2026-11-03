@@ -456,6 +456,24 @@ export function RegistrationForm() {
 		setSubmitting(true);
 		setFormError("");
 		try {
+			const eligibilityRes = await fetch("/api/cohort-eligibility", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(values),
+			});
+			const eligibilityData = await eligibilityRes.json();
+			if (!eligibilityRes.ok || !eligibilityData.ok) {
+				const mapped: Errors = {};
+				for (const [k, v] of Object.entries<string[]>(
+					eligibilityData.errors ?? {},
+				))
+					mapped[k] = v[0];
+				setErrors(mapped);
+				const bad = STEPS.findIndex((s) => s.fields.some((f) => mapped[f]));
+				if (bad >= 0) goTo(bad);
+				return;
+			}
+
 			const res = await fetch("/api/register", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
