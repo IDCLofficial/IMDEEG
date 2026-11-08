@@ -13,6 +13,7 @@ import {
 	CENTRES,
 	COURSES,
 	DIGITAL_SKILL_LEVELS,
+	DISABILITY_OPTIONS,
 	GENDERS,
 	MARITAL_STATUSES,
 	QUALIFICATIONS,
@@ -99,6 +100,8 @@ const INITIAL: Values = {
 	residentialAddress: "",
 	selectedCenter: "",
 	selectedCourse: "",
+	hasDisability: "",
+	disabilityType: "",
 	highestQualification: "",
 	courseOfStudy: "",
 	institution: "",
@@ -122,6 +125,8 @@ const STEPS = [
 			"maritalStatus",
 			"nin",
 			"imssbn",
+			"hasDisability",
+			"disabilityType",
 		],
 	},
 	{
@@ -621,6 +626,25 @@ export function RegistrationForm() {
 					>
 						{select("maritalStatus", MARITAL_STATUSES, "Select")}
 					</Field>
+					<Field
+						error={errors.hasDisability}
+						name='hasDisability'
+						label='Do you have a disability or special need?'
+					>
+						{select("hasDisability", DISABILITY_OPTIONS, "Select")}
+					</Field>
+					{values.hasDisability === "Yes" && (
+						<Field
+							error={errors.disabilityType}
+							name='disabilityType'
+							label='Please describe the disability or special need'
+						>
+							<input
+								{...bind("disabilityType")}
+								placeholder='e.g. visual impairment, mobility challenge'
+							/>
+						</Field>
+					)}
 					<div className='row'>
 						<Field error={errors.nin} name='nin' label='NIN' hint='11 digits'>
 							<input
