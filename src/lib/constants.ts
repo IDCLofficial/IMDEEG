@@ -2,22 +2,9 @@ export const PROGRAMME_NAME = "Skillup Imo Cohort 5 Portal";
 export const PROGRAMME_ORG = "MDDEG";
 export const TIME_FRAME = "Intermediate: 4-12 weeks";
 
-export const COURSES = [
-	"AI Prompt Engineering",
-	"Graphic Design",
-	"Virtual Assistant",
-	"Drone Pilot",
-	"Video Editing",
-	"Computer Appreciation",
-	"Voice Acting",
-	"Photo Editing",
-	"AI Content Creation",
-	"Digital Marketing",
-	"Data Analysis",
-	"CCTV Engineer",
-	"Phone Repairs",
-	"Clean Energy",
-] as const;
+export const COURSES = ["Video & Photo Editing", "Phone Repairs"] as const;
+
+export const DISABILITY_OPTIONS = ["Yes", "No"] as const;
 
 export const GENDERS = ["Male", "Female"] as const;
 

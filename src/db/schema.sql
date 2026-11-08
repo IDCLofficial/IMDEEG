@@ -53,3 +53,7 @@ CREATE INDEX IF NOT EXISTS registrations_course_idx ON registrations (selected_c
 CREATE INDEX IF NOT EXISTS registrations_lga_idx ON registrations (local_government);
 
 CREATE INDEX IF NOT EXISTS registrations_created_idx ON registrations (created_at DESC);
+
+ALTER TABLE registrations
+ADD COLUMN IF NOT EXISTS has_disability TEXT,
+ADD COLUMN IF NOT EXISTS disability_type TEXT;

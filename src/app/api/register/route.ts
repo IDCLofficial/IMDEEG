@@ -73,6 +73,7 @@ export async function POST(req: Request) {
         full_name, phone_number, email, gender, age_bracket, marital_status, state_of_origin,
         nin, imssbn, local_government, town, ward, residential_address,
         selected_course, selected_center, time_frame,
+        has_disability, disability_type,
         highest_qualification, course_of_study, institution, digital_skills,
         nok_name, nok_phone, nok_nin, nok_relationship
       ) VALUES (
@@ -80,6 +81,7 @@ export async function POST(req: Request) {
         ${n(d.maritalStatus)}, ${n(d.stateOfOrigin)},
         ${d.nin}, ${d.imssbn}, ${d.localGovernment}, ${d.town}, ${d.ward}, ${n(d.residentialAddress)},
         ${d.selectedCourse}, ${d.selectedCenter}, ${TIME_FRAME},
+        ${d.hasDisability}, ${n(d.disabilityType)},
         ${n(d.highestQualification)}, ${n(d.courseOfStudy)}, ${n(d.institution)}, ${n(d.digitalSkills)},
         ${n(d.nokName)}, ${n(d.nokPhone)}, ${n(d.nokNin)}, ${n(d.nokRelationship)}
       )
