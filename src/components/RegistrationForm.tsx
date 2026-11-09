@@ -10,9 +10,10 @@ import {
 } from "react";
 import {
 	AGE_BRACKETS,
+	ALL_COURSES,
 	CENTRES,
-	COURSES,
 	DIGITAL_SKILL_LEVELS,
+	DISABILITY_COURSES,
 	DISABILITY_OPTIONS,
 	GENDERS,
 	MARITAL_STATUSES,
@@ -396,7 +397,42 @@ export function RegistrationForm() {
 	};
 
 	const set = (name: string, value: string) => {
-		setValues((v) => ({ ...v, [name]: value }));
+		setValues((v) => {
+			if (name === "hasDisability") {
+				const nextSelectedCourse =
+					value === "Yes"
+						? DISABILITY_COURSES.includes(
+								v.selectedCourse as (typeof DISABILITY_COURSES)[number],
+							)
+							? v.selectedCourse
+							: ""
+						: value === "No"
+							? ALL_COURSES.includes(
+									v.selectedCourse as (typeof ALL_COURSES)[number],
+								)
+								? v.selectedCourse
+								: ""
+							: v.selectedCourse;
+
+				return {
+					...v,
+					hasDisability: value,
+					selectedCourse: nextSelectedCourse,
+				};
+			}
+
+			if (
+				name === "selectedCourse" &&
+				v.hasDisability === "Yes" &&
+				!DISABILITY_COURSES.includes(
+					value as (typeof DISABILITY_COURSES)[number],
+				)
+			) {
+				return { ...v, selectedCourse: "" };
+			}
+
+			return { ...v, [name]: value };
+		});
 		if (name === "nin" && value.trim() && isBlockedNin(value.trim())) {
 			setErrors((e) => ({ ...e, nin: BLOCKED_NIN_MESSAGE }));
 			return;
@@ -739,7 +775,11 @@ export function RegistrationForm() {
 						label='Course of choice'
 						hint={`Training runs ${TIME_FRAME}`}
 					>
-						{select("selectedCourse", COURSES, "Select a course")}
+						{select(
+							"selectedCourse",
+							values.hasDisability === "Yes" ? DISABILITY_COURSES : ALL_COURSES,
+							"Select a course",
+						)}
 					</Field>
 				</fieldset>
 			)}

@@ -1,8 +1,9 @@
 import { z } from "zod";
 import {
 	AGE_BRACKETS,
+	ALL_COURSES,
 	CENTRES,
-	COURSES,
+	DISABILITY_COURSES,
 	DISABILITY_OPTIONS,
 	GENDERS,
 } from "./constants";
@@ -51,6 +52,9 @@ const optionalNin = z
 	.transform((v) => (v ? v : undefined))
 	.optional();
 
+const getAllowedCourses = (hasDisability?: string) =>
+	hasDisability === "Yes" ? DISABILITY_COURSES : ALL_COURSES;
+
 export const registrationSchema = z
 	.object({
 		fullName: z.string().trim().min(3, "Enter your full name").max(120),
@@ -85,7 +89,7 @@ export const registrationSchema = z
 		residentialAddress: optionalText(250),
 
 		selectedCenter: z.enum(CENTRES, choose("a learning centre")),
-		selectedCourse: z.enum(COURSES, choose("a course")),
+		selectedCourse: z.string().trim().min(1, "Select a course"),
 		hasDisability: z.enum(
 			DISABILITY_OPTIONS,
 			choose("whether you have a disability or special need"),
@@ -106,6 +110,18 @@ export const registrationSchema = z
 		website: z.string().optional(),
 	})
 	.superRefine((value, ctx) => {
+		const allowedCourses = getAllowedCourses(value.hasDisability);
+		if (!allowedCourses.some((course) => course === value.selectedCourse)) {
+			ctx.addIssue({
+				path: ["selectedCourse"],
+				code: z.ZodIssueCode.custom,
+				message:
+					value.hasDisability === "Yes"
+						? "Select one of the available courses for disability support"
+						: "Select a valid course",
+			});
+		}
+
 		if (value.hasDisability === "Yes") {
 			const disability = value.disabilityType?.trim();
 			if (!disability) {
