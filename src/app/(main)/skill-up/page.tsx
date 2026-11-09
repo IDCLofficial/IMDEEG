@@ -1,8 +1,8 @@
-import Link from "next/link";
 import Image from "next/image";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import {
 	COURSES,
+	DISABILITY_COURSES,
 	PROGRAMME_NAME,
 	PROGRAMME_ORG,
 	TIME_FRAME,
@@ -55,6 +55,14 @@ export default function Home() {
 							<h2 id='course-heading'>Courses on offer</h2>
 							<ul>
 								{COURSES.map((course) => (
+									<li key={course}>{course}</li>
+								))}
+							</ul>
+							<h3 className='skillup-special-courses-heading'>
+								For applicants with disabilities or special needs
+							</h3>
+							<ul aria-label='Courses available for applicants with disabilities or special needs'>
+								{DISABILITY_COURSES.map((course) => (
 									<li key={course}>{course}</li>
 								))}
 							</ul>
