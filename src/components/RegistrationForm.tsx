@@ -674,7 +674,6 @@ export function RegistrationForm() {
 							error={errors.disabilityType}
 							name='disabilityType'
 							label='Please describe the disability or special need'
-							optional
 						>
 							<input
 								{...bind("disabilityType")}
