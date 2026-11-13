@@ -224,6 +224,7 @@
 	line-height: 1.5;
 }
 
+.skillup-inec h2,
 .skillup-courses h2 {
 	margin: 22px 0 14px;
 	font-size: 1.15rem;
@@ -236,6 +237,69 @@
 	font-size: 0.88rem;
 	font-weight: 700;
 	line-height: 1.45;
+}
+
+.skillup-inec {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid #e6ece8;
+	color: #48534c;
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+.skillup-inec h3,
+.skillup-inec h4 {
+	margin: 0 0 8px;
+	color: #1e1e1e;
+	font-size: 0.92rem;
+	font-weight: 700;
+}
+
+.skillup-inec p {
+	margin: 0 0 12px;
+}
+
+.skillup-courses .skillup-inec ul {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+	margin: 0 0 14px;
+	padding: 0;
+	list-style: none;
+}
+
+.skillup-inec li {
+	position: relative;
+	padding-left: 14px;
+	color: #48534c;
+	font-size: 0.85rem;
+	line-height: 1.45;
+}
+
+.skillup-inec li::before {
+	position: absolute;
+	top: 0.55em;
+	left: 0;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--primary-green);
+	content: "";
+}
+
+.skillup-inec-link {
+	display: inline-block;
+	padding: 8px 12px;
+	border-radius: 3px;
+	background: var(--primary-green);
+	color: #fff;
+	font-size: 0.85rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.skillup-inec-link:hover {
+	background: #087546;
 }
 
 .skillup-courses ul {

@@ -3,6 +3,7 @@
 This project is a modern, modular web application built with [Next.js](https://nextjs.org), TypeScript, and Tailwind CSS. It is designed for the Imo State Ministry of Finance, providing a comprehensive digital platform for transparent governance, accountable finance, and sustainable growth.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Components](#components)
@@ -12,6 +13,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 - [Learn More](#learn-more)
 
 ## Features
+
 - **Next.js 15** with App Router and Turbopack for modern routing and fast development
 - **React 19** with the latest features and performance improvements
 - **TypeScript** for type safety and maintainability
@@ -27,6 +29,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 - **Advertisement and quick links components** for enhanced user experience
 
 ## Project Structure
+
 ```
 /mof
   /src
@@ -79,6 +82,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 ```
 
 ### Main Pages
+
 - **Home** (`/`) - Landing page with hero, about, stats, and partners
 - **About Us** (`/about-us`) - Detailed ministry information
 - **Projects** (`/projects`) - Ministry projects showcase
@@ -91,6 +95,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 ## Components
 
 ### Core Components
+
 - **Hero**: Full-screen hero section with dynamic background, gradient overlay, and compelling copy
 - **Navbar**: Fixed header with logo and navigation, featuring backdrop blur effect
 - **NavLinks**: Responsive navigation links for all main pages
@@ -98,6 +103,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 - **Title**: Styled title component for consistent headings
 
 ### Content Components
+
 - **AboutSection**: Two-column layout with images and descriptive text
 - **AboutCommisioner**: Commissioner profile with image and information
 - **Stats**: Achievement statistics with animated counters
@@ -107,6 +113,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 - **Advertisement**: Promotional content display
 
 ### Layout Components
+
 - **CTASection**: Call-to-action section for user engagement
 - **CTABlock**: Individual call-to-action blocks
 - **Footer**: Comprehensive footer with ministry information, links, and contact details
@@ -114,6 +121,7 @@ This project is a modern, modular web application built with [Next.js](https://n
 ## Getting Started
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    # or
@@ -125,30 +133,37 @@ This project is a modern, modular web application built with [Next.js](https://n
    ```
 
 2. **Configure environment variables:**
-  Create a `.env.local` file with your existing project variables and add the support-ticket WhatsApp settings:
-  ```bash
-  # Required for fallback delivery link
-  WHATSAPP_TO_NUMBER=9129259960
+   Create a `.env.local` file with your existing project variables and add the support-ticket WhatsApp settings:
 
-  # Termii direct delivery (optional, used first when configured)
-  TERMII_API_KEY=your_termii_api_key
-  TERMII_SENDER_ID=IMDEEG
-  TERMII_CHANNEL=whatsapp
-  TERMII_BASE_URL=https://api.ng.termii.com
+```bash
+# Required for fallback delivery link
+WHATSAPP_TO_NUMBER=9129259960
 
-  # Chatbot provider
-  GROQ_API_KEY=your_groq_api_key
-  ```
+# Termii direct delivery (optional, used first when configured)
+TERMII_API_KEY=your_termii_api_key
+TERMII_SENDER_ID=IMDEEG
+TERMII_CHANNEL=whatsapp
+TERMII_BASE_URL=https://api.ng.termii.com
 
-  Number handling notes:
-  - `WHATSAPP_TO_NUMBER` can be provided as `9129259960`, `09129259960`, or `2349129259960`.
-  - The contact form requires the visitor WhatsApp number and uses it as the preferred sender value for Termii requests.
+# Chatbot provider
+GROQ_API_KEY=your_groq_api_key
 
-  Support-ticket delivery strategy:
-  - Try Termii first for automatic WhatsApp delivery.
-  - If Termii fails, the system returns a prefilled `wa.me` link so the user can send the ticket manually.
+# Dataminal INEC polling-unit suggestions (server-side only)
+DATAMINAL_API_KEY=your_dataminal_api_key
+```
+
+Number handling notes:
+
+- `WHATSAPP_TO_NUMBER` can be provided as `9129259960`, `09129259960`, or `2349129259960`.
+- The contact form requires the visitor WhatsApp number and uses it as the preferred sender value for Termii requests.
+
+Support-ticket delivery strategy:
+
+- Try Termii first for automatic WhatsApp delivery.
+- If Termii fails, the system returns a prefilled `wa.me` link so the user can send the ticket manually.
 
 3. **Run the development server:**
+
    ```bash
    npm run dev
    # or
@@ -166,6 +181,7 @@ This project is a modern, modular web application built with [Next.js](https://n
    Modify files in `src/app/` or `src/components/` to update content and UI. The app supports hot reloading with Turbopack.
 
 ## Available Scripts
+
 - `dev`: Start the development server with Turbopack
 - `build`: Build the app for production
 - `start`: Start the production server
@@ -174,12 +190,14 @@ This project is a modern, modular web application built with [Next.js](https://n
 ## Key Features Implemented
 
 ### Ministry-Specific Content
+
 - **Transparent Governance**: Focus on accountability and transparency in financial management
 - **Sustainable Growth**: Emphasis on economic development and fiscal responsibility
 - **Digital Transformation**: Integration of modern technology for efficient service delivery
 - **Partner Ecosystem**: Showcase of strategic partnerships with technology companies
 
 ### Technical Highlights
+
 - **Performance Optimized**: Built with Next.js 15 and React 19 for optimal performance
 - **Responsive Design**: Mobile-first approach with Tailwind CSS 4
 - **Type Safety**: Full TypeScript implementation for robust development
@@ -187,11 +205,13 @@ This project is a modern, modular web application built with [Next.js](https://n
 - **SEO Ready**: Optimized metadata and structured content
 
 ## Deployment
+
 The recommended way to deploy this app is via [Vercel](https://vercel.com/). You can also use any platform that supports Node.js and Next.js.
 
 For more details, see the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
 
 ## Learn More
+
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Learn Next.js](https://nextjs.org/learn)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)

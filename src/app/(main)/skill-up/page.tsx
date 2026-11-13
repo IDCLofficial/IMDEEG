@@ -66,6 +66,38 @@ export default function Home() {
 									<li key={course}>{course}</li>
 								))}
 							</ul>
+							<section className='skillup-inec' aria-labelledby='inec-heading'>
+								<h2>support election activities</h2>
+								<h3 id='inec-heading'>About INEC</h3>
+								<p>
+									The Independent National Electoral Commission (INEC) is
+									responsible for conducting elections in Nigeria. It also
+									provides opportunities for eligible Nigerians to register as
+									ad-hoc election staff to support election activities.
+								</p>
+								<h4>Basic Requirements</h4>
+								<ul>
+									<li>
+										Applicants must not be members of any political party.
+									</li>
+									<li>
+										Applicants must not have expressed support for any candidate
+										or political party.
+									</li>
+									<li>
+										Applicants must reside in the state they select, except for
+										RATECHs.
+									</li>
+								</ul>
+								<a
+									href='https://pres.inecnigeria.org/register'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='skillup-inec-link'
+								>
+									Register on INECPRES Portal
+								</a>
+							</section>
 						</section>
 					</aside>
 

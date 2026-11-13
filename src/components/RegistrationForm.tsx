@@ -26,6 +26,7 @@ import { isBlockedNin } from "@/lib/blockedNins";
 
 type Values = Record<string, string>;
 type Errors = Record<string, string>;
+type PollingUnitOption = { name: string; code: string; ward: string };
 type ApiRecord = {
 	id?: string | number;
 	name?: string;
@@ -98,6 +99,7 @@ const INITIAL: Values = {
 	localGovernment: "",
 	town: "",
 	ward: "",
+	pollingUnit: "",
 	residentialAddress: "",
 	selectedCenter: "",
 	selectedCourse: "",
@@ -107,6 +109,9 @@ const INITIAL: Values = {
 	courseOfStudy: "",
 	institution: "",
 	digitalSkills: "",
+	bankName: "",
+	accountNumber: "",
+	bankNameChoice: "",
 	nokName: "",
 	nokPhone: "",
 	nokNin: "",
@@ -128,6 +133,9 @@ const STEPS = [
 			"imssbn",
 			"hasDisability",
 			"disabilityType",
+			"bankName",
+			"bankNameChoice",
+			"accountNumber",
 		],
 	},
 	{
@@ -137,6 +145,7 @@ const STEPS = [
 			"localGovernment",
 			"town",
 			"ward",
+			"pollingUnit",
 			"residentialAddress",
 			"selectedCenter",
 			"selectedCourse",
@@ -281,6 +290,13 @@ export function RegistrationForm() {
 	const [lgaOptions, setLgaOptions] = useState<ApiRecord[]>([]);
 	const [wardOptions, setWardOptions] = useState<ApiRecord[]>([]);
 	const [courseStudyOptions, setCourseStudyOptions] = useState<string[]>([]);
+	const [pollingUnitOptions, setPollingUnitOptions] = useState<
+		PollingUnitOption[]
+	>([]);
+	const [pollingUnitLoading, setPollingUnitLoading] = useState(false);
+	const [pollingUnitMessage, setPollingUnitMessage] = useState("");
+	const [bankOptions, setBankOptions] = useState<ApiRecord[]>([]);
+	const [bankOptionsMessage, setBankOptionsMessage] = useState("");
 	const topRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -336,6 +352,40 @@ export function RegistrationForm() {
 		};
 	}, []);
 
+	useEffect(() => {
+		let ignore = false;
+		void fetch("/api/banks")
+			.then(async (response) => {
+				const result = (await response.json()) as {
+					data?: string[];
+					message?: string;
+				};
+				if (!response.ok) throw new Error(result.message);
+				return result;
+			})
+			.then((result) => {
+				if (ignore) return;
+				setBankOptions(
+					(Array.isArray(result.data) ? result.data : []).map((name) => ({
+						name,
+					})),
+				);
+				setBankOptionsMessage(result.message ?? "");
+			})
+			.catch(() => {
+				if (!ignore) {
+					setBankOptions([]);
+					setBankOptionsMessage(
+						"Bank list unavailable. Choose Other to enter your bank manually.",
+					);
+				}
+			});
+
+		return () => {
+			ignore = true;
+		};
+	}, []);
+
 	const selectedState = useMemo(() => {
 		const stateName = values.stateOfOrigin || "Imo";
 		return (
@@ -386,6 +436,69 @@ export function RegistrationForm() {
 		});
 	}, [localGovernmentOptions, values.localGovernment, wardOptions]);
 
+	const selectedLga = findMatchingRecord(
+		localGovernmentOptions,
+		values.localGovernment,
+		(record) => getRecordName(record),
+	);
+
+	useEffect(() => {
+		if (!selectedLga) {
+			setPollingUnitOptions([]);
+			setPollingUnitLoading(false);
+			setPollingUnitMessage(
+				values.localGovernment
+					? "Select an LGA from the list to load polling units."
+					: "Select an LGA to load polling units.",
+			);
+			return;
+		}
+
+		const controller = new AbortController();
+		setPollingUnitLoading(true);
+		setPollingUnitOptions([]);
+		setPollingUnitMessage("Loading INEC polling units...");
+
+		const query = new URLSearchParams({
+			lga: getRecordName(selectedLga),
+		});
+
+		void fetch(`/api/polling-units?${query}`, { signal: controller.signal })
+			.then(async (response) => {
+				const result = (await response.json()) as {
+					data?: PollingUnitOption[];
+					message?: string;
+				};
+				if (!response.ok) throw new Error(result.message);
+				return result;
+			})
+			.then((result) => {
+				const options = Array.isArray(result.data) ? result.data : [];
+				setPollingUnitOptions(options);
+				setPollingUnitMessage(
+					result.message ??
+						(options.length
+							? `${options.length} polling units available for this ward.`
+							: "No polling units found for this ward. You can enter it manually."),
+				);
+			})
+			.catch((error: unknown) => {
+				if (error instanceof DOMException && error.name === "AbortError")
+					return;
+				setPollingUnitOptions([]);
+				setPollingUnitMessage(
+					error instanceof Error
+						? `${error.message} You can enter the polling unit manually.`
+						: "Polling-unit suggestions are unavailable. You can enter it manually.",
+				);
+			})
+			.finally(() => {
+				if (!controller.signal.aborted) setPollingUnitLoading(false);
+			});
+
+		return () => controller.abort();
+	}, [selectedLga, values.localGovernment]);
+
 	const courseOfStudyHasNoMatch =
 		values.courseOfStudy.trim() !== "" &&
 		!courseStudyOptions.some(
@@ -393,7 +506,10 @@ export function RegistrationForm() {
 		);
 
 	const resetWardIfNeeded = (nextLga: string) => {
-		if (nextLga !== values.localGovernment) set("ward", "");
+		if (nextLga !== values.localGovernment) {
+			set("ward", "");
+			set("pollingUnit", "");
+		}
 	};
 
 	const set = (name: string, value: string) => {
@@ -704,6 +820,51 @@ export function RegistrationForm() {
 							/>
 						</Field>
 					</div>
+					<div className='row'>
+						<Field
+							error={
+								values.bankNameChoice === "Other" ? undefined : errors.bankName
+							}
+							hint={bankOptionsMessage}
+							name='bankNameChoice'
+							label='Bank name'
+						>
+							<SearchSelect
+								name='bankNameChoice'
+								value={values.bankNameChoice}
+								options={bankOptions}
+								placeholder='Search and select a bank'
+								allowOther
+								onChange={(nextValue) => {
+									set("bankNameChoice", nextValue);
+									if (nextValue !== "Other") set("bankName", nextValue);
+									else set("bankName", "");
+								}}
+							/>
+						</Field>
+						{values.bankNameChoice === "Other" && (
+							<Field
+								error={errors.bankName}
+								name='bankName'
+								label='Enter bank name'
+							>
+								<input {...bind("bankName")} autoComplete='organization' />
+							</Field>
+						)}
+						<Field
+							error={errors.accountNumber}
+							name='accountNumber'
+							label='Account number'
+							hint='10 digits'
+						>
+							<input
+								{...bind("accountNumber", true)}
+								inputMode='numeric'
+								maxLength={10}
+								autoComplete='off'
+							/>
+						</Field>
+					</div>
 				</fieldset>
 			)}
 
@@ -747,10 +908,37 @@ export function RegistrationForm() {
 								options={wardOptionsForLga}
 								placeholder='Search and select your ward or choose Other'
 								allowOther
-								onChange={(nextValue) => set("ward", nextValue)}
+								onChange={(nextValue) => {
+									if (nextValue !== values.ward) set("pollingUnit", "");
+									set("ward", nextValue);
+								}}
 							/>
 						</Field>
 					</div>
+					<Field
+						error={errors.pollingUnit}
+						name='pollingUnit'
+						label='Polling Unit'
+						hint={
+							pollingUnitMessage ||
+							"Select your LGA to load its INEC polling units."
+						}
+					>
+						<SearchSelect
+							name='pollingUnit'
+							value={values.pollingUnit}
+							options={pollingUnitOptions.map((option) => ({
+								id: option.code,
+								name: `${option.name} (${option.code}) - ${option.ward}`,
+							}))}
+							placeholder={
+								pollingUnitLoading
+									? "Loading polling units..."
+									: "Search and select a polling unit"
+							}
+							onChange={(nextValue) => set("pollingUnit", nextValue)}
+						/>
+					</Field>
 					<Field
 						error={errors.residentialAddress}
 						name='residentialAddress'
