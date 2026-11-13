@@ -24,8 +24,12 @@ import {
 import { registrationSchema } from "@/lib/validation";
 import { isBlockedNin } from "@/lib/blockedNins";
 
-type Values = Record<string, string>;
+type Values = Record<string, string> & {
+	lookupEmail?: string;
+	lookupPhone?: string;
+};
 type Errors = Record<string, string>;
+type PollingUnitOption = { name: string; code: string; ward: string };
 type ApiRecord = {
 	id?: string | number;
 	name?: string;
@@ -98,6 +102,7 @@ const INITIAL: Values = {
 	localGovernment: "",
 	town: "",
 	ward: "",
+	pollingUnit: "",
 	residentialAddress: "",
 	selectedCenter: "",
 	selectedCourse: "",
@@ -107,11 +112,16 @@ const INITIAL: Values = {
 	courseOfStudy: "",
 	institution: "",
 	digitalSkills: "",
+	bankName: "",
+	accountNumber: "",
+	bankNameChoice: "",
 	nokName: "",
 	nokPhone: "",
 	nokNin: "",
 	nokRelationship: "",
 	website: "",
+	lookupEmail: "",
+	lookupPhone: "",
 };
 
 const STEPS = [
@@ -128,6 +138,9 @@ const STEPS = [
 			"imssbn",
 			"hasDisability",
 			"disabilityType",
+			"bankName",
+			"bankNameChoice",
+			"accountNumber",
 		],
 	},
 	{
@@ -137,6 +150,7 @@ const STEPS = [
 			"localGovernment",
 			"town",
 			"ward",
+			"pollingUnit",
 			"residentialAddress",
 			"selectedCenter",
 			"selectedCourse",
@@ -277,10 +291,31 @@ export function RegistrationForm() {
 	const [submitting, setSubmitting] = useState(false);
 	const [formError, setFormError] = useState("");
 	const [reference, setReference] = useState("");
+	const [lookup, setLookup] = useState<{ email: string; phone: string } | null>(
+		null,
+	);
+	const [foundRegistration, setFoundRegistration] = useState<{
+		fullName: string;
+		phoneNumber: string;
+		email: string;
+		gender: string;
+		ageBracket: string;
+		nin: string;
+		selectedCourse: string;
+		selectedCenter: string;
+		timeFrame: string;
+	} | null>(null);
 	const [stateOptions, setStateOptions] = useState<ApiRecord[]>([]);
 	const [lgaOptions, setLgaOptions] = useState<ApiRecord[]>([]);
 	const [wardOptions, setWardOptions] = useState<ApiRecord[]>([]);
 	const [courseStudyOptions, setCourseStudyOptions] = useState<string[]>([]);
+	const [pollingUnitOptions, setPollingUnitOptions] = useState<
+		PollingUnitOption[]
+	>([]);
+	const [pollingUnitLoading, setPollingUnitLoading] = useState(false);
+	const [pollingUnitMessage, setPollingUnitMessage] = useState("");
+	const [bankOptions, setBankOptions] = useState<ApiRecord[]>([]);
+	const [bankOptionsMessage, setBankOptionsMessage] = useState("");
 	const topRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -336,6 +371,40 @@ export function RegistrationForm() {
 		};
 	}, []);
 
+	useEffect(() => {
+		let ignore = false;
+		void fetch("/api/banks")
+			.then(async (response) => {
+				const result = (await response.json()) as {
+					data?: string[];
+					message?: string;
+				};
+				if (!response.ok) throw new Error(result.message);
+				return result;
+			})
+			.then((result) => {
+				if (ignore) return;
+				setBankOptions(
+					(Array.isArray(result.data) ? result.data : []).map((name) => ({
+						name,
+					})),
+				);
+				setBankOptionsMessage(result.message ?? "");
+			})
+			.catch(() => {
+				if (!ignore) {
+					setBankOptions([]);
+					setBankOptionsMessage(
+						"Bank list unavailable. Choose Other to enter your bank manually.",
+					);
+				}
+			});
+
+		return () => {
+			ignore = true;
+		};
+	}, []);
+
 	const selectedState = useMemo(() => {
 		const stateName = values.stateOfOrigin || "Imo";
 		return (
@@ -386,6 +455,69 @@ export function RegistrationForm() {
 		});
 	}, [localGovernmentOptions, values.localGovernment, wardOptions]);
 
+	const selectedLga = findMatchingRecord(
+		localGovernmentOptions,
+		values.localGovernment,
+		(record) => getRecordName(record),
+	);
+
+	useEffect(() => {
+		if (!selectedLga) {
+			setPollingUnitOptions([]);
+			setPollingUnitLoading(false);
+			setPollingUnitMessage(
+				values.localGovernment
+					? "Select an LGA from the list to load polling units."
+					: "Select an LGA to load polling units.",
+			);
+			return;
+		}
+
+		const controller = new AbortController();
+		setPollingUnitLoading(true);
+		setPollingUnitOptions([]);
+		setPollingUnitMessage("Loading INEC polling units...");
+
+		const query = new URLSearchParams({
+			lga: getRecordName(selectedLga),
+		});
+
+		void fetch(`/api/polling-units?${query}`, { signal: controller.signal })
+			.then(async (response) => {
+				const result = (await response.json()) as {
+					data?: PollingUnitOption[];
+					message?: string;
+				};
+				if (!response.ok) throw new Error(result.message);
+				return result;
+			})
+			.then((result) => {
+				const options = Array.isArray(result.data) ? result.data : [];
+				setPollingUnitOptions(options);
+				setPollingUnitMessage(
+					result.message ??
+						(options.length
+							? `${options.length} polling units available for this ward.`
+							: "No polling units found for this ward. You can enter it manually."),
+				);
+			})
+			.catch((error: unknown) => {
+				if (error instanceof DOMException && error.name === "AbortError")
+					return;
+				setPollingUnitOptions([]);
+				setPollingUnitMessage(
+					error instanceof Error
+						? `${error.message} You can enter the polling unit manually.`
+						: "Polling-unit suggestions are unavailable. You can enter it manually.",
+				);
+			})
+			.finally(() => {
+				if (!controller.signal.aborted) setPollingUnitLoading(false);
+			});
+
+		return () => controller.abort();
+	}, [selectedLga, values.localGovernment]);
+
 	const courseOfStudyHasNoMatch =
 		values.courseOfStudy.trim() !== "" &&
 		!courseStudyOptions.some(
@@ -393,7 +525,10 @@ export function RegistrationForm() {
 		);
 
 	const resetWardIfNeeded = (nextLga: string) => {
-		if (nextLga !== values.localGovernment) set("ward", "");
+		if (nextLga !== values.localGovernment) {
+			set("ward", "");
+			set("pollingUnit", "");
+		}
 	};
 
 	const set = (name: string, value: string) => {
@@ -584,33 +719,98 @@ export function RegistrationForm() {
 		);
 	}
 
+	if (foundRegistration) {
+		return (
+			<div
+				className='card success'
+				role='status'
+				style={{
+					marginBottom: 24,
+					borderBottom: "1px solid #e2e8f0",
+					paddingBottom: 16,
+				}}
+			>
+				<h2>Registration found</h2>
+				<p>
+					We found an existing registration for this email/phone. Here are the
+					details:
+				</p>
+				<dl className='summary'>
+					<div>
+						<dt>Name</dt>
+						<dd>{foundRegistration.fullName}</dd>
+					</div>
+					<div>
+						<dt>Email</dt>
+						<dd>{foundRegistration.email}</dd>
+					</div>
+					<div>
+						<dt>Phone</dt>
+						<dd>{foundRegistration.phoneNumber}</dd>
+					</div>
+					<div>
+						<dt>Course</dt>
+						<dd>{foundRegistration.selectedCourse}</dd>
+					</div>
+					<div>
+						<dt>Centre</dt>
+						<dd>{foundRegistration.selectedCenter}</dd>
+					</div>
+					<div>
+						<dt>Duration</dt>
+						<dd>{foundRegistration.timeFrame}</dd>
+					</div>
+				</dl>
+				<div style={{ marginTop: 24 }}>
+					<button
+						className='btn btn-primary'
+						onClick={() => {
+							setFoundRegistration(null);
+							setLookup(null);
+							setFormError("");
+						}}
+					>
+						Register a new person
+					</button>
+					<button
+						className='btn btn-ghost'
+						type='button'
+						onClick={() => {
+							setValues(INITIAL);
+							setReference("");
+							setStep(0);
+							setFoundRegistration(null);
+							setLookup(null);
+						}}
+					>
+						Start new registration
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<form className='card' onSubmit={onSubmit} noValidate>
 			<div ref={topRef} />
-			<ol className='steps' aria-label='Progress'>
-				{STEPS.map((s, i) => (
-					<li
-						key={s.title}
-						className={i === step ? "on" : i < step ? "done" : ""}
-						aria-current={i === step ? "step" : undefined}
-					>
-						<span>{i + 1}</span> {s.title}
-					</li>
-				))}
-			</ol>
 
-			{/* Honeypot */}
-			<div className='hp' aria-hidden='true'>
-				<label htmlFor='website'>Website</label>
-				<input
-					id='website'
-					name='website'
-					tabIndex={-1}
-					autoComplete='off'
-					value={values.website}
-					onChange={(e) => set("website", e.target.value)}
-				/>
-			</div>
+			{/* Lookup section for existing registrations */}
+
+			{!foundRegistration && (
+				<ol className='steps' aria-label='Progress'>
+					{STEPS.map((s, i) => (
+						<li
+							key={s.title}
+							className={i === step ? "on" : i < step ? "done" : ""}
+							aria-current={i === step ? "step" : undefined}
+						>
+							<span>{i + 1}</span> {s.title}
+						</li>
+					))}
+				</ol>
+			)}
+
+			{/* Honeypot removed */}
 
 			{step === 0 && (
 				<fieldset>
@@ -704,6 +904,51 @@ export function RegistrationForm() {
 							/>
 						</Field>
 					</div>
+					<div className='row'>
+						<Field
+							error={
+								values.bankNameChoice === "Other" ? undefined : errors.bankName
+							}
+							hint={bankOptionsMessage}
+							name='bankNameChoice'
+							label='Bank name'
+						>
+							<SearchSelect
+								name='bankNameChoice'
+								value={values.bankNameChoice}
+								options={bankOptions}
+								placeholder='Search and select a bank'
+								allowOther
+								onChange={(nextValue) => {
+									set("bankNameChoice", nextValue);
+									if (nextValue !== "Other") set("bankName", nextValue);
+									else set("bankName", "");
+								}}
+							/>
+						</Field>
+						{values.bankNameChoice === "Other" && (
+							<Field
+								error={errors.bankName}
+								name='bankName'
+								label='Enter bank name'
+							>
+								<input {...bind("bankName")} autoComplete='organization' />
+							</Field>
+						)}
+						<Field
+							error={errors.accountNumber}
+							name='accountNumber'
+							label='Account number'
+							hint='10 digits'
+						>
+							<input
+								{...bind("accountNumber", true)}
+								inputMode='numeric'
+								maxLength={10}
+								autoComplete='off'
+							/>
+						</Field>
+					</div>
 				</fieldset>
 			)}
 
@@ -747,10 +992,37 @@ export function RegistrationForm() {
 								options={wardOptionsForLga}
 								placeholder='Search and select your ward or choose Other'
 								allowOther
-								onChange={(nextValue) => set("ward", nextValue)}
+								onChange={(nextValue) => {
+									if (nextValue !== values.ward) set("pollingUnit", "");
+									set("ward", nextValue);
+								}}
 							/>
 						</Field>
 					</div>
+					<Field
+						error={errors.pollingUnit}
+						name='pollingUnit'
+						label='Polling Unit'
+						hint={
+							pollingUnitMessage ||
+							"Select your LGA to load its INEC polling units."
+						}
+					>
+						<SearchSelect
+							name='pollingUnit'
+							value={values.pollingUnit}
+							options={pollingUnitOptions.map((option) => ({
+								id: option.code,
+								name: `${option.name} (${option.code}) - ${option.ward}`,
+							}))}
+							placeholder={
+								pollingUnitLoading
+									? "Loading polling units..."
+									: "Search and select a polling unit"
+							}
+							onChange={(nextValue) => set("pollingUnit", nextValue)}
+						/>
+					</Field>
 					<Field
 						error={errors.residentialAddress}
 						name='residentialAddress'

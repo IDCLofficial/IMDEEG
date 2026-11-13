@@ -10,6 +10,12 @@ import {
 
 const NG_PHONE = /^(?:\+234|234|0)[789][01]\d{8}$/;
 const strip = (v: string) => v.replace(/[\s-]/g, "");
+const normalizeNgPhone = (value: string) => {
+	const phoneNumber = strip(value);
+	if (phoneNumber.startsWith("+234")) return `0${phoneNumber.slice(4)}`;
+	if (phoneNumber.startsWith("234")) return `0${phoneNumber.slice(3)}`;
+	return phoneNumber;
+};
 const choose = (what: string) => ({
 	message: `Select ${what}`,
 });
@@ -29,7 +35,8 @@ const phone = z
 	.refine(
 		(v) => NG_PHONE.test(v),
 		"Enter a valid Nigerian number, e.g. 08012345678",
-	);
+	)
+	.transform(normalizeNgPhone);
 
 const optionalPhone = z
 	.string()
@@ -39,6 +46,7 @@ const optionalPhone = z
 		(v) => v === "" || NG_PHONE.test(v),
 		"Enter a valid Nigerian number, e.g. 08012345678",
 	)
+	.transform(normalizeNgPhone)
 	.transform((v) => (v ? v : undefined))
 	.optional();
 
@@ -86,6 +94,7 @@ export const registrationSchema = z
 			.max(100),
 		town: z.string().trim().min(2, "Enter your town").max(100),
 		ward: z.string().trim().min(1, "Enter your ward").max(100),
+		pollingUnit: optionalText(160),
 		residentialAddress: optionalText(250),
 
 		selectedCenter: z.enum(CENTRES, choose("a learning centre")),
@@ -100,6 +109,11 @@ export const registrationSchema = z
 		courseOfStudy: optionalText(120),
 		institution: optionalText(160),
 		digitalSkills: optionalText(40),
+		bankName: z.string().trim().min(1, "Enter your bank name").max(100),
+		accountNumber: z
+			.string()
+			.trim()
+			.regex(/^\d{10}$/, "Account number must be exactly 10 digits"),
 
 		nokName: optionalText(120),
 		nokPhone: optionalPhone,
