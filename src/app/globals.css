@@ -682,3 +682,277 @@
 		text-align: left;
 	}
 }
+
+.skillup-mode-switch {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 1rem;
+}
+
+.skillup-mode-switch button {
+	background: none;
+	border: none;
+	color: #2563eb;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+/* Registration lookup */
+
+.lookup-wrapper {
+	width: 100%;
+}
+
+.lookup-card {
+	width: 100%;
+	max-width: 560px;
+	margin: 0 auto;
+	padding: clamp(22px, 4vw, 36px);
+	border: 1px solid #dfe8e3;
+	border-radius: 6px;
+	background: #fff;
+	box-shadow: 0 10px 28px rgb(22 69 44 / 6%);
+}
+
+.lookup-heading {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	margin-bottom: 30px;
+}
+
+.lookup-icon,
+.lookup-success-icon {
+	display: grid;
+	flex: 0 0 48px;
+	width: 48px;
+	height: 48px;
+	place-items: center;
+	border-radius: 50%;
+	background: #eaf6ef;
+	color: var(--primary-green);
+}
+
+.lookup-icon svg,
+.lookup-success-icon svg {
+	width: 23px;
+	height: 23px;
+}
+
+.lookup-heading h2,
+.lookup-result-heading h2 {
+	margin: 0 0 8px;
+	color: #1e1e1e;
+	font-size: 1.3rem;
+	font-weight: 700;
+}
+
+.lookup-heading p,
+.lookup-result-heading p {
+	margin: 0;
+	color: #69756e;
+	font-size: 0.9rem;
+	line-height: 1.6;
+}
+
+.lookup-fields {
+	display: grid;
+	gap: 18px;
+}
+
+.lookup-field {
+	display: grid;
+	gap: 8px;
+}
+
+.lookup-field label {
+	color: #303a34;
+	font-size: 0.88rem;
+	font-weight: 700;
+}
+
+.lookup-field input {
+	width: 100%;
+	min-height: 48px;
+	padding: 11px 14px;
+	border: 1px solid #cbd6cf;
+	border-radius: 3px;
+	background: #fff;
+	color: #1e1e1e;
+	font: inherit;
+	font-size: 0.92rem;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+}
+
+.lookup-field input::placeholder {
+	color: #9aa59e;
+}
+
+.lookup-field input:focus {
+	border-color: var(--primary-green);
+	outline: none;
+	box-shadow: 0 0 0 3px rgb(17 145 86 / 12%);
+}
+
+.lookup-divider {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	color: #8a968e;
+	font-size: 0.72rem;
+	font-weight: 700;
+}
+
+.lookup-divider::before,
+.lookup-divider::after {
+	flex: 1;
+	height: 1px;
+	background: #e6ece8;
+	content: "";
+}
+
+.lookup-submit {
+	display: flex;
+	width: 100%;
+	min-height: 48px;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 22px;
+	padding: 12px 18px;
+	border: 0;
+	border-radius: 3px;
+	background: var(--primary-green);
+	color: #fff;
+	font: inherit;
+	font-size: 0.92rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition:
+		background 0.2s,
+		transform 0.2s;
+}
+
+.lookup-submit:hover:not(:disabled) {
+	background: #0d7444;
+}
+
+.lookup-submit:active:not(:disabled) {
+	transform: translateY(1px);
+}
+
+.lookup-submit:focus-visible {
+	outline: 3px solid rgb(17 145 86 / 30%);
+	outline-offset: 3px;
+}
+
+.lookup-submit:disabled {
+	cursor: wait;
+	opacity: 0.7;
+}
+
+.lookup-note {
+	margin: 16px 0 0;
+	color: #7a867e;
+	font-size: 0.78rem;
+	line-height: 1.5;
+	text-align: center;
+}
+
+.lookup-error {
+	margin-top: 16px;
+	padding: 12px 14px;
+	border: 1px solid #f3c6c3;
+	border-radius: 3px;
+	background: #fff4f3;
+	color: #b42318;
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+
+.lookup-spinner {
+	width: 17px;
+	height: 17px;
+	border: 2px solid rgb(255 255 255 / 35%);
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: lookup-spin 0.7s linear infinite;
+}
+
+@keyframes lookup-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Found registration */
+
+.lookup-result {
+	animation: zoomIn 0.3s ease-out;
+}
+
+.lookup-success-icon {
+	width: 52px;
+	height: 52px;
+	margin-bottom: 18px;
+	background: #eaf7ef;
+}
+
+.lookup-result-heading {
+	margin-bottom: 24px;
+}
+
+.lookup-result-details {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0 20px;
+	border-top: 1px solid #e6ece8;
+}
+
+.lookup-detail {
+	display: grid;
+	align-content: start;
+	gap: 6px;
+	min-width: 0;
+	padding: 15px 0;
+	border-bottom: 1px solid #e6ece8;
+}
+
+.lookup-detail span {
+	color: #738078;
+	font-size: 0.76rem;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.lookup-detail strong {
+	overflow-wrap: anywhere;
+	color: #26342b;
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.45;
+}
+
+@media (max-width: 520px) {
+	.lookup-card {
+		padding: 22px 18px;
+	}
+
+	.lookup-heading {
+		gap: 12px;
+	}
+
+	.lookup-heading h2,
+	.lookup-result-heading h2 {
+		font-size: 1.15rem;
+	}
+
+	.lookup-result-details {
+		grid-template-columns: 1fr;
+	}
+}

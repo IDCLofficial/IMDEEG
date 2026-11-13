@@ -24,7 +24,10 @@ import {
 import { registrationSchema } from "@/lib/validation";
 import { isBlockedNin } from "@/lib/blockedNins";
 
-type Values = Record<string, string>;
+type Values = Record<string, string> & {
+	lookupEmail?: string;
+	lookupPhone?: string;
+};
 type Errors = Record<string, string>;
 type PollingUnitOption = { name: string; code: string; ward: string };
 type ApiRecord = {
@@ -117,6 +120,8 @@ const INITIAL: Values = {
 	nokNin: "",
 	nokRelationship: "",
 	website: "",
+	lookupEmail: "",
+	lookupPhone: "",
 };
 
 const STEPS = [
@@ -286,6 +291,20 @@ export function RegistrationForm() {
 	const [submitting, setSubmitting] = useState(false);
 	const [formError, setFormError] = useState("");
 	const [reference, setReference] = useState("");
+	const [lookup, setLookup] = useState<{ email: string; phone: string } | null>(
+		null,
+	);
+	const [foundRegistration, setFoundRegistration] = useState<{
+		fullName: string;
+		phoneNumber: string;
+		email: string;
+		gender: string;
+		ageBracket: string;
+		nin: string;
+		selectedCourse: string;
+		selectedCenter: string;
+		timeFrame: string;
+	} | null>(null);
 	const [stateOptions, setStateOptions] = useState<ApiRecord[]>([]);
 	const [lgaOptions, setLgaOptions] = useState<ApiRecord[]>([]);
 	const [wardOptions, setWardOptions] = useState<ApiRecord[]>([]);
@@ -700,33 +719,98 @@ export function RegistrationForm() {
 		);
 	}
 
+	if (foundRegistration) {
+		return (
+			<div
+				className='card success'
+				role='status'
+				style={{
+					marginBottom: 24,
+					borderBottom: "1px solid #e2e8f0",
+					paddingBottom: 16,
+				}}
+			>
+				<h2>Registration found</h2>
+				<p>
+					We found an existing registration for this email/phone. Here are the
+					details:
+				</p>
+				<dl className='summary'>
+					<div>
+						<dt>Name</dt>
+						<dd>{foundRegistration.fullName}</dd>
+					</div>
+					<div>
+						<dt>Email</dt>
+						<dd>{foundRegistration.email}</dd>
+					</div>
+					<div>
+						<dt>Phone</dt>
+						<dd>{foundRegistration.phoneNumber}</dd>
+					</div>
+					<div>
+						<dt>Course</dt>
+						<dd>{foundRegistration.selectedCourse}</dd>
+					</div>
+					<div>
+						<dt>Centre</dt>
+						<dd>{foundRegistration.selectedCenter}</dd>
+					</div>
+					<div>
+						<dt>Duration</dt>
+						<dd>{foundRegistration.timeFrame}</dd>
+					</div>
+				</dl>
+				<div style={{ marginTop: 24 }}>
+					<button
+						className='btn btn-primary'
+						onClick={() => {
+							setFoundRegistration(null);
+							setLookup(null);
+							setFormError("");
+						}}
+					>
+						Register a new person
+					</button>
+					<button
+						className='btn btn-ghost'
+						type='button'
+						onClick={() => {
+							setValues(INITIAL);
+							setReference("");
+							setStep(0);
+							setFoundRegistration(null);
+							setLookup(null);
+						}}
+					>
+						Start new registration
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<form className='card' onSubmit={onSubmit} noValidate>
 			<div ref={topRef} />
-			<ol className='steps' aria-label='Progress'>
-				{STEPS.map((s, i) => (
-					<li
-						key={s.title}
-						className={i === step ? "on" : i < step ? "done" : ""}
-						aria-current={i === step ? "step" : undefined}
-					>
-						<span>{i + 1}</span> {s.title}
-					</li>
-				))}
-			</ol>
 
-			{/* Honeypot */}
-			<div className='hp' aria-hidden='true'>
-				<label htmlFor='website'>Website</label>
-				<input
-					id='website'
-					name='website'
-					tabIndex={-1}
-					autoComplete='off'
-					value={values.website}
-					onChange={(e) => set("website", e.target.value)}
-				/>
-			</div>
+			{/* Lookup section for existing registrations */}
+
+			{!foundRegistration && (
+				<ol className='steps' aria-label='Progress'>
+					{STEPS.map((s, i) => (
+						<li
+							key={s.title}
+							className={i === step ? "on" : i < step ? "done" : ""}
+							aria-current={i === step ? "step" : undefined}
+						>
+							<span>{i + 1}</span> {s.title}
+						</li>
+					))}
+				</ol>
+			)}
+
+			{/* Honeypot removed */}
 
 			{step === 0 && (
 				<fieldset>

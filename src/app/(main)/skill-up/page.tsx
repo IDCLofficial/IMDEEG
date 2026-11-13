@@ -7,6 +7,8 @@ import {
 	PROGRAMME_ORG,
 	TIME_FRAME,
 } from "@/lib/constants";
+import { LookupForm } from "@/components/LookupForm";
+import { RegistrationSwitcher } from "@/components/RegistrationSwitcher";
 
 export default function Home() {
 	return (
@@ -102,7 +104,7 @@ export default function Home() {
 					</aside>
 
 					<section className='skillup-form' aria-label='Registration form'>
-						<RegistrationForm />
+						<RegistrationSwitcher />
 					</section>
 				</div>
 			</div>
