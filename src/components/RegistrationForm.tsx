@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
 	FormEvent,
 	ReactElement,
@@ -16,6 +17,7 @@ import {
 	DISABILITY_COURSES,
 	DISABILITY_OPTIONS,
 	GENDERS,
+	LEGACY_COURSES,
 	MARITAL_STATUSES,
 	QUALIFICATIONS,
 	RELATIONSHIPS,
@@ -24,10 +26,11 @@ import {
 import { registrationSchema } from "@/lib/validation";
 import { isBlockedNin } from "@/lib/blockedNins";
 
-type Values = Record<string, string> & {
+export type RegistrationFormValues = Record<string, string> & {
 	lookupEmail?: string;
 	lookupPhone?: string;
 };
+type Values = RegistrationFormValues;
 type Errors = Record<string, string>;
 type PollingUnitOption = { name: string; code: string; ward: string };
 type ApiRecord = {
@@ -171,21 +174,34 @@ const STEPS = [
 	},
 ];
 
-function validate(values: Values, fields?: string[]): Errors {
+function validate(
+	values: Values,
+	fields?: string[],
+	options?: { allowLegacyCourses?: boolean; skipBlockedNin?: boolean },
+): Errors {
 	const result = registrationSchema.safeParse(values);
 	const errors: Errors = {};
 	if (!result.success) {
 		for (const issue of result.error.issues) {
 			const key = String(issue.path[0]);
 			if (fields && !fields.includes(key)) continue;
+			if (
+				options?.allowLegacyCourses &&
+				key === "selectedCourse" &&
+				(LEGACY_COURSES as readonly string[]).includes(values.selectedCourse)
+			) {
+				continue;
+			}
 			if (!errors[key]) errors[key] = issue.message;
 		}
 	}
 
-	const nin = values.nin?.trim() ?? "";
-	if (nin && isBlockedNin(nin)) {
-		if (!fields || fields.includes("nin")) {
-			errors.nin = BLOCKED_NIN_MESSAGE;
+	if (!options?.skipBlockedNin) {
+		const nin = values.nin?.trim() ?? "";
+		if (nin && isBlockedNin(nin)) {
+			if (!fields || fields.includes("nin")) {
+				errors.nin = BLOCKED_NIN_MESSAGE;
+			}
 		}
 	}
 
@@ -284,9 +300,24 @@ function SearchSelect(props: {
 	);
 }
 
-export function RegistrationForm() {
+export function RegistrationForm({
+	mode = "create",
+	registrationId,
+	initialValues,
+}: {
+	mode?: "create" | "edit";
+	registrationId?: string;
+	initialValues?: Partial<RegistrationFormValues>;
+} = {}) {
+	const isEdit = mode === "edit";
 	const [step, setStep] = useState(0);
-	const [values, setValues] = useState<Values>(INITIAL);
+	const [values, setValues] = useState<Values>(() => {
+		const next: Values = { ...INITIAL };
+		for (const [key, value] of Object.entries(initialValues ?? {})) {
+			if (typeof value === "string") next[key] = value;
+		}
+		return next;
+	});
 	const [errors, setErrors] = useState<Errors>({});
 	const [submitting, setSubmitting] = useState(false);
 	const [formError, setFormError] = useState("");
@@ -533,18 +564,22 @@ export function RegistrationForm() {
 
 	const set = (name: string, value: string) => {
 		setValues((v) => {
+			const legacyCourse =
+				isEdit &&
+				(LEGACY_COURSES as readonly string[]).includes(v.selectedCourse);
+
 			if (name === "hasDisability") {
 				const nextSelectedCourse =
 					value === "Yes"
 						? DISABILITY_COURSES.includes(
 								v.selectedCourse as (typeof DISABILITY_COURSES)[number],
-							)
+							) || legacyCourse
 							? v.selectedCourse
 							: ""
 						: value === "No"
 							? ALL_COURSES.includes(
 									v.selectedCourse as (typeof ALL_COURSES)[number],
-								)
+								) || legacyCourse
 								? v.selectedCourse
 								: ""
 							: v.selectedCourse;
@@ -561,6 +596,10 @@ export function RegistrationForm() {
 				v.hasDisability === "Yes" &&
 				!DISABILITY_COURSES.includes(
 					value as (typeof DISABILITY_COURSES)[number],
+				) &&
+				!(
+					isEdit &&
+					(LEGACY_COURSES as readonly string[]).includes(value)
 				)
 			) {
 				return { ...v, selectedCourse: "" };
@@ -568,7 +607,12 @@ export function RegistrationForm() {
 
 			return { ...v, [name]: value };
 		});
-		if (name === "nin" && value.trim() && isBlockedNin(value.trim())) {
+		if (
+			!isEdit &&
+			name === "nin" &&
+			value.trim() &&
+			isBlockedNin(value.trim())
+		) {
 			setErrors((e) => ({ ...e, nin: BLOCKED_NIN_MESSAGE }));
 			return;
 		}
@@ -609,10 +653,25 @@ export function RegistrationForm() {
 	};
 
 	const hasBlockedNinError =
-		step === 0 && values.nin.trim() !== "" && isBlockedNin(values.nin.trim());
+		!isEdit &&
+		step === 0 &&
+		values.nin.trim() !== "" &&
+		isBlockedNin(values.nin.trim());
+
+	const allowedCourses =
+		values.hasDisability === "Yes" ? DISABILITY_COURSES : ALL_COURSES;
+	const legacyCourseOptions = isEdit
+		? LEGACY_COURSES.filter(
+				(course) => !(allowedCourses as readonly string[]).includes(course),
+			)
+		: [];
+	const courseOptions = [...allowedCourses, ...legacyCourseOptions];
 
 	function next() {
-		const found = validate(values, STEPS[step].fields);
+		const found = validate(values, STEPS[step].fields, {
+			allowLegacyCourses: isEdit,
+			skipBlockedNin: isEdit,
+		});
 		setErrors(found);
 		if (Object.keys(found).length === 0) goTo(step + 1);
 	}
@@ -621,7 +680,10 @@ export function RegistrationForm() {
 		e.preventDefault();
 		if (step < STEPS.length - 1) return next();
 
-		const all = validate(values);
+		const all = validate(values, undefined, {
+			allowLegacyCourses: isEdit,
+			skipBlockedNin: isEdit,
+		});
 		if (Object.keys(all).length) {
 			setErrors(all);
 			const bad = STEPS.findIndex((s) => s.fields.some((f) => all[f]));
@@ -632,32 +694,39 @@ export function RegistrationForm() {
 		setSubmitting(true);
 		setFormError("");
 		try {
-			const eligibilityRes = await fetch("/api/cohort-eligibility", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(values),
-			});
-			const eligibilityData = await eligibilityRes.json();
-			if (!eligibilityRes.ok || !eligibilityData.ok) {
-				const mapped: Errors = {};
-				for (const [k, v] of Object.entries<string[]>(
-					eligibilityData.errors ?? {},
-				))
-					mapped[k] = v[0];
-				setErrors(mapped);
-				const bad = STEPS.findIndex((s) => s.fields.some((f) => mapped[f]));
-				if (bad >= 0) goTo(bad);
-				return;
+			if (!isEdit) {
+				const eligibilityRes = await fetch("/api/cohort-eligibility", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(values),
+				});
+				const eligibilityData = await eligibilityRes.json();
+				if (!eligibilityRes.ok || !eligibilityData.ok) {
+					const mapped: Errors = {};
+					for (const [k, v] of Object.entries<string[]>(
+						eligibilityData.errors ?? {},
+					))
+						mapped[k] = v[0];
+					setErrors(mapped);
+					const bad = STEPS.findIndex((s) => s.fields.some((f) => mapped[f]));
+					if (bad >= 0) goTo(bad);
+					return;
+				}
 			}
 
-			const res = await fetch("/api/register", {
-				method: "POST",
+			const endpoint =
+				isEdit && registrationId
+					? `/api/registration/${encodeURIComponent(registrationId)}`
+					: "/api/register";
+
+			const res = await fetch(endpoint, {
+				method: isEdit ? "PATCH" : "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(values),
 			});
 			const data = await res.json();
 			if (res.ok && data.ok) {
-				setReference(data.reference);
+				setReference(data.reference ?? "");
 				return;
 			}
 			if (data.errors) {
@@ -680,10 +749,11 @@ export function RegistrationForm() {
 	if (reference) {
 		return (
 			<div className='card success' role='status'>
-				<h2>You are registered</h2>
+				<h2>{isEdit ? "Registration updated" : "You are registered"}</h2>
 				<p>
-					Keep this reference number. You will need it if you contact the
-					programme team.
+					{isEdit
+						? "Your details have been saved. Thank you for helping us keep our records accurate."
+						: "Keep this reference number. You will need it if you contact the programme team."}
 				</p>
 				<p className='ref'>{reference}</p>
 				<dl className='summary'>
@@ -704,17 +774,23 @@ export function RegistrationForm() {
 						<dd>{TIME_FRAME}</dd>
 					</div>
 				</dl>
-				<button
-					className='btn btn-ghost'
-					type='button'
-					onClick={() => {
-						setValues(INITIAL);
-						setReference("");
-						setStep(0);
-					}}
-				>
-					Register another person
-				</button>
+				{isEdit ? (
+					<Link className='btn btn-ghost' href='/skill-up'>
+						Back to registration home
+					</Link>
+				) : (
+					<button
+						className='btn btn-ghost'
+						type='button'
+						onClick={() => {
+							setValues(INITIAL);
+							setReference("");
+							setStep(0);
+						}}
+					>
+						Register another person
+					</button>
+				)}
 			</div>
 		);
 	}
@@ -793,6 +869,13 @@ export function RegistrationForm() {
 	return (
 		<form className='card' onSubmit={onSubmit} noValidate>
 			<div ref={topRef} />
+
+			{isEdit && (
+				<p className='note' style={{ marginBottom: 16 }}>
+					You are updating an existing registration. Review the details below
+					and save your changes at the end.
+				</p>
+			)}
 
 			{/* Lookup section for existing registrations */}
 
@@ -1049,7 +1132,7 @@ export function RegistrationForm() {
 					>
 						{select(
 							"selectedCourse",
-							values.hasDisability === "Yes" ? DISABILITY_COURSES : ALL_COURSES,
+							courseOptions,
 							"Select a course",
 						)}
 					</Field>
@@ -1193,7 +1276,9 @@ export function RegistrationForm() {
 						? "Continue"
 						: submitting
 							? "Saving..."
-							: "Submit registration"}
+							: isEdit
+								? "Save changes"
+								: "Submit registration"}
 				</button>
 			</div>
 		</form>
