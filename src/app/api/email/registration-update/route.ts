@@ -7,9 +7,8 @@ import {
 	buildEditRegistrationUrl,
 	buildRegistrationUpdateHtml,
 	buildRegistrationUpdateText,
-	getFirstName,
-	maskEmail,
 } from "@/lib/email/registration-update";
+import { getFirstName, maskEmail } from "@/lib/email/format";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -161,12 +160,55 @@ async function totalRecipients() {
 	return Number(rows[0]?.total ?? 0);
 }
 
+/**
+ * Campaign audience: every record that has not completed the current
+ * registration flow.
+ *
+ * `email_confirmed` records that a send was accepted, but it is deliberately
+ * NOT part of this filter, so restarting or re-running the campaign re-emails
+ * the same rows. Repeated reminders are intentional: people leave the audience
+ * by completing their registration, not by receiving an email.
+ */
+async function pendingRecipients() {
+	const db = getDb();
+	const rows = await db`
+		SELECT count(*)::int AS pending
+		FROM registrations
+		WHERE btrim(email) <> ''
+		AND completed_registration = FALSE
+	`;
+	return Number(rows[0]?.pending ?? 0);
+}
+
+async function alreadyEmailedRecipients() {
+	const db = getDb();
+	const rows = await db`
+		SELECT count(*)::int AS already_emailed
+		FROM registrations
+		WHERE btrim(email) <> ''
+		AND email_confirmed = TRUE
+	`;
+	return Number(rows[0]?.already_emailed ?? 0);
+}
+
+async function completedRecipients() {
+	const db = getDb();
+	const rows = await db`
+		SELECT count(*)::int AS completed
+		FROM registrations
+		WHERE btrim(email) <> ''
+		AND completed_registration = TRUE
+	`;
+	return Number(rows[0]?.completed ?? 0);
+}
+
 async function countRemaining(cursor: Cursor) {
 	const db = getDb();
 	const rows = await db`
 		SELECT count(*)::int AS remaining
 		FROM registrations
 		WHERE btrim(email) <> ''
+		AND completed_registration = FALSE
 		AND (created_at, id) > (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)
 	`;
 	return Number(rows[0]?.remaining ?? 0);
@@ -180,6 +222,7 @@ async function nextRecipients(limit: number, cursor: Cursor | null) {
 			SELECT id, full_name, email, created_at
 			FROM registrations
 			WHERE btrim(email) <> ''
+			AND completed_registration = FALSE
 			AND (created_at, id) > (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)
 			ORDER BY created_at, id
 			LIMIT ${limit}
@@ -190,6 +233,7 @@ async function nextRecipients(limit: number, cursor: Cursor | null) {
 		SELECT id, full_name, email, created_at
 		FROM registrations
 		WHERE btrim(email) <> ''
+		AND completed_registration = FALSE
 		ORDER BY created_at, id
 		LIMIT ${limit}
 	`) as RecipientRow[];
@@ -197,11 +241,17 @@ async function nextRecipients(limit: number, cursor: Cursor | null) {
 
 async function previewResponse(config: BroadcastConfig) {
 	const db = getDb();
-	const total = await totalRecipients();
+	const [total, pending, alreadyEmailed, completed] = await Promise.all([
+		totalRecipients(),
+		pendingRecipients(),
+		alreadyEmailedRecipients(),
+		completedRecipients(),
+	]);
 	const sampleRows = (await db`
 		SELECT id, full_name, email, created_at
 		FROM registrations
 		WHERE btrim(email) <> ''
+		AND completed_registration = FALSE
 		ORDER BY created_at, id
 		LIMIT 3
 	`) as unknown as RecipientRow[];
@@ -210,6 +260,9 @@ async function previewResponse(config: BroadcastConfig) {
 		ok: true,
 		mode: "preview",
 		total,
+		pending,
+		alreadyEmailed,
+		completed,
 		from: config.from,
 		subject: REGISTRATION_UPDATE_SUBJECT,
 		sample: sampleRows.map((row) => ({
@@ -377,6 +430,7 @@ async function sendChunk(
 	}
 
 	const resend = new Resend(config.apiKey);
+	const db = getDb();
 	const siteUrl = getSiteUrl(req);
 	const failures: Failure[] = [];
 	let sent = 0;
@@ -408,6 +462,27 @@ async function sendChunk(
 				});
 			}
 
+			const successfulIds = batch
+				.filter((_row, rowIndex) => !failedIndexes.has(rowIndex))
+				.map((row) => row.id);
+
+			if (successfulIds.length > 0) {
+				try {
+					// Audit trail only: this flag is not part of the audience
+					// filter, so it never removes anyone from a later run.
+					await db`
+						UPDATE registrations
+						SET email_confirmed = TRUE
+						WHERE id = ANY(${successfulIds}::uuid[])
+					`;
+				} catch (error) {
+					console.error(
+						"Could not mark broadcast recipients as email_confirmed:",
+						error,
+					);
+				}
+			}
+
 			lastCompleted = last;
 		} catch (error) {
 			const reason =
@@ -418,7 +493,7 @@ async function sendChunk(
 						createdAt: toIsoString(lastCompleted.created_at),
 						id: lastCompleted.id,
 					})
-				: await totalRecipients();
+				: await pendingRecipients();
 
 			return NextResponse.json(
 				{

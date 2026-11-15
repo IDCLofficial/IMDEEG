@@ -36,7 +36,8 @@ export async function GET(
 				residential_address, selected_course, selected_center, time_frame,
 				has_disability, disability_type, bank_name, account_number,
 				highest_qualification, course_of_study, institution, digital_skills,
-				nok_name, nok_phone, nok_nin, nok_relationship, status, created_at
+				nok_name, nok_phone, nok_nin, nok_relationship, status, created_at,
+				email_confirmed, completed_registration
 			FROM registrations
 			WHERE id = ${id}::uuid
 			LIMIT 1
@@ -84,6 +85,8 @@ export async function GET(
 				nokNin: row.nok_nin ?? "",
 				nokRelationship: row.nok_relationship ?? "",
 				status: row.status ?? "pending",
+				emailConfirmed: Boolean(row.email_confirmed),
+				completedRegistration: Boolean(row.completed_registration),
 				reference: referenceFor(row.id),
 			},
 		});
@@ -188,6 +191,7 @@ export async function PATCH(
 				nok_phone = ${n(d.nokPhone)},
 				nok_nin = ${n(d.nokNin)},
 				nok_relationship = ${n(d.nokRelationship)},
+				completed_registration = TRUE,
 				updated_at = now()
 			WHERE id = ${id}::uuid
 			RETURNING id

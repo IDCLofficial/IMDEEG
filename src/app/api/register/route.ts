@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getDb } from "@/lib/db";
 import { TIME_FRAME } from "@/lib/constants";
 import { registrationSchema } from "@/lib/validation";
@@ -7,6 +7,7 @@ import {
 	checkPreviousCohortEligibility,
 	loadPreviousCohortEntries,
 } from "@/lib/cohortEligibility";
+import { sendRegistrationConfirmation } from "@/lib/email/registration-confirmation";
 
 export const runtime = "nodejs";
 
@@ -77,7 +78,8 @@ export async function POST(req: Request) {
         has_disability, disability_type,
 		bank_name, account_number,
         highest_qualification, course_of_study, institution, digital_skills,
-        nok_name, nok_phone, nok_nin, nok_relationship
+        nok_name, nok_phone, nok_nin, nok_relationship,
+        completed_registration
       ) VALUES (
         ${d.fullName}, ${d.phoneNumber}, ${d.email}, ${d.gender}, ${d.ageBracket},
         ${n(d.maritalStatus)}, ${n(d.stateOfOrigin)},
@@ -87,12 +89,55 @@ export async function POST(req: Request) {
         ${d.hasDisability}, ${n(d.disabilityType)},
 		${n(d.bankName)}, ${n(d.accountNumber)},
         ${n(d.highestQualification)}, ${n(d.courseOfStudy)}, ${n(d.institution)}, ${n(d.digitalSkills)},
-        ${n(d.nokName)}, ${n(d.nokPhone)}, ${n(d.nokNin)}, ${n(d.nokRelationship)}
+        ${n(d.nokName)}, ${n(d.nokPhone)}, ${n(d.nokNin)}, ${n(d.nokRelationship)},
+        TRUE
       )
       RETURNING id
     `;
 		const reference = "SKILLUP-" + String(rows[0].id).slice(0, 8).toUpperCase();
-		return NextResponse.json({ ok: true, reference }, { status: 201 });
+		const registrationId = String(rows[0].id);
+		const emailConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
+
+		// The registration is saved. Send the confirmation email after the
+		// response is flushed so a slow or failing Resend call never delays
+		// the user's confirmation.
+		after(async () => {
+			if (!emailConfigured) {
+				console.error(
+					"Registration confirmation email skipped: RESEND_API_KEY is not set.",
+				);
+				return;
+			}
+
+			try {
+				const emailResult = await sendRegistrationConfirmation({
+					id: registrationId,
+					fullName: d.fullName,
+					email: d.email,
+					reference,
+				});
+
+				if (emailResult.ok) {
+					await db`
+						UPDATE registrations
+						SET email_confirmed = TRUE
+						WHERE id = ${registrationId}::uuid
+					`;
+				} else {
+					console.error(
+						"Registration confirmation email failed:",
+						emailResult.error,
+					);
+				}
+			} catch (error) {
+				console.error("Registration confirmation email failed:", error);
+			}
+		});
+
+		return NextResponse.json(
+			{ ok: true, reference, emailQueued: emailConfigured },
+			{ status: 201 },
+		);
 	} catch (err: unknown) {
 		const e = err as { code?: string; constraint?: string };
 		if (e?.code === "23505") {

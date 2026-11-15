@@ -115,6 +115,8 @@ export async function GET(req: Request) {
 				selectedCenter: registration.selected_center,
 				timeFrame: registration.time_frame,
 				status: registration.status,
+				emailConfirmed: Boolean(registration.email_confirmed),
+				completedRegistration: Boolean(registration.completed_registration),
 				createdAt: registration.created_at,
 			},
 		});

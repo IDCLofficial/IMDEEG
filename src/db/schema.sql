@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS registrations (
   -- admin
   status                TEXT NOT NULL DEFAULT 'pending',
   is_active             BOOLEAN NOT NULL DEFAULT TRUE,
+  email_confirmed       BOOLEAN NOT NULL DEFAULT FALSE,
+  completed_registration BOOLEAN NOT NULL DEFAULT FALSE,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -62,7 +64,9 @@ ADD COLUMN IF NOT EXISTS has_disability TEXT,
 ADD COLUMN IF NOT EXISTS disability_type TEXT,
 ADD COLUMN IF NOT EXISTS bank_name TEXT,
 ADD COLUMN IF NOT EXISTS account_number TEXT,
-ADD COLUMN IF NOT EXISTS polling_unit TEXT;
+ADD COLUMN IF NOT EXISTS polling_unit TEXT,
+ADD COLUMN IF NOT EXISTS email_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS completed_registration BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE UNIQUE INDEX IF NOT EXISTS registrations_email_key
 ON registrations (lower(btrim(email)));

@@ -1,50 +1,18 @@
+import {
+	FACEBOOK_FORUM_URL,
+	INEC_REGISTRATION_URL,
+} from "@/lib/links";
+import { escapeHtml, getFirstName } from "@/lib/email/format";
+
+export { escapeHtml, getFirstName };
+export { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL };
+
 export const REGISTRATION_UPDATE_SUBJECT =
 	"Action required: Complete your SkillUp Imo registration";
-
-export const INEC_REGISTRATION_URL = "https://pres.inecnigeria.org/register";
-
-export const FACEBOOK_FORUM_URL =
-	"https://www.facebook.com/share/p/1DieAZog5P/?mibextid=wwXIfr";
-
-const escapeHtml = (value: string) =>
-	value
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;")
-		.replace(/'/g, "&#39;");
-
-/**
- * Takes the first word of a full name and presents it in title case.
- * All-caps records such as "OBILOR QUEENDALINE" become "Obilor".
- */
-export function getFirstName(fullName: string | null | undefined) {
-	const first = String(fullName ?? "")
-		.trim()
-		.split(/\s+/)[0];
-
-	if (!first) return "there";
-
-	if (first === first.toUpperCase()) {
-		return first
-			.toLowerCase()
-			.replace(/(^|[-'])(\p{L})/gu, (_match, separator, letter) =>
-				`${separator}${String(letter).toUpperCase()}`,
-			);
-	}
-
-	return first.charAt(0).toUpperCase() + first.slice(1);
-}
 
 export function buildEditRegistrationUrl(siteUrl: string, registrationId: string) {
 	const base = siteUrl.replace(/\/+$/, "");
 	return `${base}/skill-up?id=${encodeURIComponent(registrationId)}`;
-}
-
-export function maskEmail(email: string) {
-	const [localPart, domain] = String(email).trim().split("@");
-	if (!localPart || !domain) return "***";
-	return `${localPart.slice(0, 1)}***@${domain}`;
 }
 
 export function buildRegistrationUpdateHtml({

@@ -25,6 +25,7 @@ import {
 } from "@/lib/constants";
 import { registrationSchema } from "@/lib/validation";
 import { isBlockedNin } from "@/lib/blockedNins";
+import { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL } from "@/lib/links";
 
 export type RegistrationFormValues = Record<string, string> & {
 	lookupEmail?: string;
@@ -774,6 +775,33 @@ export function RegistrationForm({
 						<dd>{TIME_FRAME}</dd>
 					</div>
 				</dl>
+				{!isEdit && (
+					<div className='success-next-steps'>
+						<h3>Next steps</h3>
+						<p>
+							Complete your INEC registration and join our Facebook forum to
+							stay connected with the community.
+						</p>
+						<div className='success-next-actions'>
+							<a
+								className='btn btn-primary'
+								href={INEC_REGISTRATION_URL}
+								target='_blank'
+								rel='noopener noreferrer'
+							>
+								Register with INEC
+							</a>
+							<a
+								className='btn btn-ghost'
+								href={FACEBOOK_FORUM_URL}
+								target='_blank'
+								rel='noopener noreferrer'
+							>
+								Join the Facebook Forum
+							</a>
+						</div>
+					</div>
+				)}
 				{isEdit ? (
 					<Link className='btn btn-ghost' href='/skill-up'>
 						Back to registration home
