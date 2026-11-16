@@ -1,11 +1,12 @@
 import {
 	FACEBOOK_FORUM_URL,
 	INEC_REGISTRATION_URL,
+	WHATSAPP_CHANNEL_URL,
 } from "@/lib/links";
 import { escapeHtml, getFirstName } from "@/lib/email/format";
 
 export { escapeHtml, getFirstName };
-export { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL };
+export { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL, WHATSAPP_CHANNEL_URL };
 
 export const REGISTRATION_UPDATE_SUBJECT =
 	"Action required: Complete your SkillUp Imo registration";
@@ -37,7 +38,7 @@ export function buildRegistrationUpdateHtml({
 
       <p>Thank you for being part of our previous registration process.</p>
 
-      <p>We are reaching out to all previously registered participants to request that you complete three important steps to keep your information up to date and stay connected with our community.</p>
+      <p>We are reaching out to all previously registered participants to request that you complete four important steps to keep your information up to date and stay connected with our community.</p>
 
       <h3>1. Update Your Registration Details</h3>
       <p>Some information may have been missing during your initial registration. Kindly review and update your details using the link below.</p>
@@ -50,6 +51,10 @@ export function buildRegistrationUpdateHtml({
       <h3>3. Join Our Facebook Forum</h3>
       <p>Stay informed, connect with other members, participate in discussions, and receive important updates by joining our Facebook forum.</p>
       <p><a href="${FACEBOOK_FORUM_URL}" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">Join the Facebook Forum</a></p>
+
+      <h3>4. Join Our WhatsApp Channel</h3>
+      <p>Get announcements, reminders, and programme updates delivered straight to your phone by following our WhatsApp channel.</p>
+      <p><a href="${WHATSAPP_CHANNEL_URL}" style="display: inline-block; background: #128c7e; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">Join the WhatsApp Channel</a></p>
 
       <p>Please complete these steps as soon as possible. Your cooperation helps us maintain accurate records and build a more informed, connected, and engaged community.</p>
 
@@ -74,7 +79,7 @@ export function buildRegistrationUpdateText({
 
 Thank you for being part of our previous registration process.
 
-We are reaching out to all previously registered participants to request that you complete three important steps to keep your information up to date and stay connected with our community.
+We are reaching out to all previously registered participants to request that you complete four important steps to keep your information up to date and stay connected with our community.
 
 1. Update Your Registration Details
 Some information may have been missing during your initial registration. Kindly review and update your details using the link below.
@@ -87,6 +92,10 @@ ${INEC_REGISTRATION_URL}
 3. Join Our Facebook Forum
 Stay informed, connect with other members, participate in discussions, and receive important updates by joining our Facebook forum.
 ${FACEBOOK_FORUM_URL}
+
+4. Join Our WhatsApp Channel
+Get announcements, reminders, and programme updates delivered straight to your phone by following our WhatsApp channel.
+${WHATSAPP_CHANNEL_URL}
 
 Please complete these steps as soon as possible. Your cooperation helps us maintain accurate records and build a more informed, connected, and engaged community.
 
