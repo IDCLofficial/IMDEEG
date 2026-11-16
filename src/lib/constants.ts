@@ -25,6 +25,10 @@ export const DISABILITY_COURSES = [
 	"Phone Repairs",
 ] as const;
 
+// Course names found in older records. They stay available when someone edits
+// an existing registration so their original choice is not lost.
+export const LEGACY_COURSES = ["Video Editing", "Photo Editing"] as const;
+
 export const DISABILITY_OPTIONS = ["Yes", "No"] as const;
 
 export const GENDERS = ["Male", "Female"] as const;

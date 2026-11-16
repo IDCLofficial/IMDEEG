@@ -542,6 +542,40 @@
 	font-weight: 700;
 }
 
+.skillup-form .success-next-steps {
+	margin: 24px 0;
+	padding: 20px;
+	border: 1px solid #dfe8e3;
+	border-radius: 4px;
+	background: #f8fbf9;
+}
+
+.skillup-form .success-next-steps h3 {
+	margin: 0 0 8px;
+}
+
+.skillup-form .success-next-steps p {
+	margin: 0 0 16px;
+	color: #4b5a50;
+}
+
+.skillup-form .success-next-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.skillup-form .success-next-actions .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+}
+
+.skillup-form .success-next-actions .btn-primary {
+	margin-left: 0;
+}
+
 .skillup-form .summary {
 	display: grid;
 	gap: 12px;
