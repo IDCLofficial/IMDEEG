@@ -94,7 +94,7 @@ export const registrationSchema = z
 			.max(100),
 		town: z.string().trim().min(2, "Enter your town").max(100),
 		ward: z.string().trim().min(1, "Enter your ward").max(100),
-		pollingUnit: optionalText(160),
+		pollingUnit: z.string().trim().min(1, "Enter your ward").max(100),
 		residentialAddress: optionalText(250),
 
 		selectedCenter: z.enum(CENTRES, choose("a learning centre")),

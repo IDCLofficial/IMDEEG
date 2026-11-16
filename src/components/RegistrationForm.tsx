@@ -1126,6 +1126,7 @@ export function RegistrationForm({
 								id: option.code,
 								name: `${option.name} (${option.code}) - ${option.ward}`,
 							}))}
+							allowOther
 							placeholder={
 								pollingUnitLoading
 									? "Loading polling units..."
