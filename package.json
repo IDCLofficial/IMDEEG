@@ -11,6 +11,7 @@
 		"generate:bootcamp-json": "node scripts/generate-bootcamp-data-json.mjs",
 		"scrape:website": "node scripts/scrape-website.mjs",
 		"check:cohort5-duplicates": "node scripts/check-cohort5-duplicates.mjs",
+		"email:registration-update": "node --env-file=.env.local scripts/send-registration-update-all.mjs",
 		"db:migrate": "node --env-file=.env.local src/scripts/migrate.mjs",
 		"zod": "^3.23.8"
 	},

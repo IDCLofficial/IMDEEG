@@ -39,6 +39,35 @@ type Failure = {
 	reason: string;
 };
 
+/**
+ * Which registrations a broadcast run targets.
+ *
+ * - `pending`: people who have not completed the new registration flow
+ *   (historical campaign behaviour).
+ * - `all`: every record with an email, completed or not.
+ * - `unsent`: records this campaign has not yet delivered to. Used to retry
+ *   after a run stops early, because a successful send sets `email_confirmed`.
+ */
+type Audience = "pending" | "all" | "unsent";
+
+const AUDIENCES: readonly Audience[] = ["pending", "all", "unsent"];
+
+function parseAudience(raw: unknown): Audience | null {
+	if (raw === undefined || raw === null || raw === "") return "pending";
+	if (typeof raw !== "string") return null;
+	const value = raw.trim().toLowerCase();
+	return (AUDIENCES as readonly string[]).includes(value)
+		? (value as Audience)
+		: null;
+}
+
+function audienceFlags(audience: Audience) {
+	return {
+		includeCompleted: audience !== "pending",
+		onlyUnsent: audience === "unsent",
+	};
+}
+
 type BroadcastConfig = {
 	apiKey: string;
 	secret: string;
@@ -202,19 +231,39 @@ async function completedRecipients() {
 	return Number(rows[0]?.completed ?? 0);
 }
 
-async function countRemaining(cursor: Cursor) {
+async function audienceRecipients(audience: Audience) {
+	const { includeCompleted, onlyUnsent } = audienceFlags(audience);
+	const db = getDb();
+	const rows = await db`
+		SELECT count(*)::int AS total
+		FROM registrations
+		WHERE btrim(email) <> ''
+		AND (${includeCompleted} OR completed_registration = FALSE)
+		AND (${!onlyUnsent} OR email_confirmed = FALSE)
+	`;
+	return Number(rows[0]?.total ?? 0);
+}
+
+async function countRemaining(cursor: Cursor, audience: Audience) {
+	const { includeCompleted, onlyUnsent } = audienceFlags(audience);
 	const db = getDb();
 	const rows = await db`
 		SELECT count(*)::int AS remaining
 		FROM registrations
 		WHERE btrim(email) <> ''
-		AND completed_registration = FALSE
+		AND (${includeCompleted} OR completed_registration = FALSE)
+		AND (${!onlyUnsent} OR email_confirmed = FALSE)
 		AND (created_at, id) > (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)
 	`;
 	return Number(rows[0]?.remaining ?? 0);
 }
 
-async function nextRecipients(limit: number, cursor: Cursor | null) {
+async function nextRecipients(
+	limit: number,
+	cursor: Cursor | null,
+	audience: Audience,
+) {
+	const { includeCompleted, onlyUnsent } = audienceFlags(audience);
 	const db = getDb();
 
 	if (cursor) {
@@ -222,7 +271,8 @@ async function nextRecipients(limit: number, cursor: Cursor | null) {
 			SELECT id, full_name, email, created_at
 			FROM registrations
 			WHERE btrim(email) <> ''
-			AND completed_registration = FALSE
+			AND (${includeCompleted} OR completed_registration = FALSE)
+			AND (${!onlyUnsent} OR email_confirmed = FALSE)
 			AND (created_at, id) > (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)
 			ORDER BY created_at, id
 			LIMIT ${limit}
@@ -233,25 +283,33 @@ async function nextRecipients(limit: number, cursor: Cursor | null) {
 		SELECT id, full_name, email, created_at
 		FROM registrations
 		WHERE btrim(email) <> ''
-		AND completed_registration = FALSE
+		AND (${includeCompleted} OR completed_registration = FALSE)
+		AND (${!onlyUnsent} OR email_confirmed = FALSE)
 		ORDER BY created_at, id
 		LIMIT ${limit}
 	`) as RecipientRow[];
 }
 
-async function previewResponse(config: BroadcastConfig) {
+async function previewResponse(
+	config: BroadcastConfig,
+	audience: Audience,
+) {
 	const db = getDb();
-	const [total, pending, alreadyEmailed, completed] = await Promise.all([
-		totalRecipients(),
-		pendingRecipients(),
-		alreadyEmailedRecipients(),
-		completedRecipients(),
-	]);
+	const { includeCompleted, onlyUnsent } = audienceFlags(audience);
+	const [total, pending, alreadyEmailed, completed, audienceCount] =
+		await Promise.all([
+			totalRecipients(),
+			pendingRecipients(),
+			alreadyEmailedRecipients(),
+			completedRecipients(),
+			audienceRecipients(audience),
+		]);
 	const sampleRows = (await db`
 		SELECT id, full_name, email, created_at
 		FROM registrations
 		WHERE btrim(email) <> ''
-		AND completed_registration = FALSE
+		AND (${includeCompleted} OR completed_registration = FALSE)
+		AND (${!onlyUnsent} OR email_confirmed = FALSE)
 		ORDER BY created_at, id
 		LIMIT 3
 	`) as unknown as RecipientRow[];
@@ -259,10 +317,12 @@ async function previewResponse(config: BroadcastConfig) {
 	return {
 		ok: true,
 		mode: "preview",
+		audience,
 		total,
 		pending,
 		alreadyEmailed,
 		completed,
+		audienceCount,
 		from: config.from,
 		subject: REGISTRATION_UPDATE_SUBJECT,
 		sample: sampleRows.map((row) => ({
@@ -400,6 +460,17 @@ async function sendChunk(
 		);
 	}
 
+	const audience = parseAudience(body.audience);
+	if (!audience) {
+		return NextResponse.json(
+			{
+				ok: false,
+				message: `Invalid audience. Use one of: ${AUDIENCES.join(", ")}.`,
+			},
+			{ status: 400 },
+		);
+	}
+
 	let cursor: Cursor | null;
 	try {
 		cursor = decodeCursor(body.cursor);
@@ -414,12 +485,13 @@ async function sendChunk(
 	}
 
 	const limit = getLimit(body.limit);
-	const rows = await nextRecipients(limit, cursor);
+	const rows = await nextRecipients(limit, cursor, audience);
 
 	if (rows.length === 0) {
 		return NextResponse.json({
 			ok: true,
 			mode: "send",
+			audience,
 			sent: 0,
 			failed: 0,
 			remaining: 0,
@@ -489,16 +561,20 @@ async function sendChunk(
 				error instanceof Error ? error.message : "Unknown delivery error";
 			const nextCursor = lastCompleted ? encodeCursor(lastCompleted) : null;
 			const remaining = lastCompleted
-				? await countRemaining({
-						createdAt: toIsoString(lastCompleted.created_at),
-						id: lastCompleted.id,
-					})
-				: await pendingRecipients();
+				? await countRemaining(
+						{
+							createdAt: toIsoString(lastCompleted.created_at),
+							id: lastCompleted.id,
+						},
+						audience,
+					)
+				: await audienceRecipients(audience);
 
 			return NextResponse.json(
 				{
 					ok: false,
 					mode: "send",
+					audience,
 					sent,
 					failed: failures.length,
 					remaining,
@@ -518,14 +594,18 @@ async function sendChunk(
 
 	const lastRow = rows[rows.length - 1];
 	const nextCursor = encodeCursor(lastRow);
-	const remaining = await countRemaining({
-		createdAt: toIsoString(lastRow.created_at),
-		id: lastRow.id,
-	});
+	const remaining = await countRemaining(
+		{
+			createdAt: toIsoString(lastRow.created_at),
+			id: lastRow.id,
+		},
+		audience,
+	);
 
 	const response = {
 		ok: sent > 0 || failures.length === 0,
 		mode: "send",
+		audience,
 		sent,
 		failed: failures.length,
 		remaining,
@@ -569,8 +649,19 @@ export async function GET(req: Request) {
 		);
 	}
 
+	const audience = parseAudience(new URL(req.url).searchParams.get("audience"));
+	if (!audience) {
+		return NextResponse.json(
+			{
+				ok: false,
+				message: `Invalid audience. Use one of: ${AUDIENCES.join(", ")}.`,
+			},
+			{ status: 400 },
+		);
+	}
+
 	try {
-		return NextResponse.json(await previewResponse(config));
+		return NextResponse.json(await previewResponse(config, audience));
 	} catch (error) {
 		console.error("Registration update preview failed:", error);
 		return NextResponse.json(
@@ -617,10 +708,23 @@ export async function POST(req: Request) {
 	}
 
 	const mode = typeof body.mode === "string" ? body.mode : "preview";
+	const audience = parseAudience(body.audience);
+
+	if ((mode === "preview" || mode === "send") && !audience) {
+		return NextResponse.json(
+			{
+				ok: false,
+				message: `Invalid audience. Use one of: ${AUDIENCES.join(", ")}.`,
+			},
+			{ status: 400 },
+		);
+	}
 
 	try {
 		if (mode === "preview") {
-			return NextResponse.json(await previewResponse(config));
+			return NextResponse.json(
+				await previewResponse(config, audience ?? "pending"),
+			);
 		}
 
 		if (mode === "test") {
