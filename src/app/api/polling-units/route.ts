@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -10,7 +11,7 @@ type PollingUnit = {
 	code: string;
 };
 
-const CSV_URL = new URL("../../../../data/polling-units.csv", import.meta.url);
+const CSV_PATH = path.join(process.cwd(), "data", "polling-units.csv");
 let cachedImoPollingUnits: Promise<PollingUnit[]> | undefined;
 
 const normalize = (value: string) =>
@@ -59,7 +60,7 @@ function parseCsv(text: string, onRow: (values: string[]) => void) {
 
 function loadImoPollingUnits(): Promise<PollingUnit[]> {
 	if (!cachedImoPollingUnits) {
-		cachedImoPollingUnits = readFile(CSV_URL, "utf8").then((text) => {
+		cachedImoPollingUnits = readFile(CSV_PATH, "utf8").then((text) => {
 			let columnIndexes: Record<string, number> | undefined;
 			const pollingUnits: PollingUnit[] = [];
 
