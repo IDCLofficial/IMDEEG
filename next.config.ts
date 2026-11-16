@@ -47,6 +47,7 @@ const nextConfig: NextConfig = {
 
 	outputFileTracingIncludes: {
 		"/api/cohort-eligibility": ["./data/Skill_Up_Imo_Combined_Records.xlsx"],
+		"/api/polling-units": ["./data/polling-units.csv"],
 	},
 };
 
