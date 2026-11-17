@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiMail, FiPhone, FiMapPin, FiFacebook, FiTwitter, FiInstagram, FiLinkedin } from 'react-icons/fi';
+import { FiMail, FiMapPin, FiFacebook, FiTwitter, FiInstagram, FiLinkedin } from 'react-icons/fi';
 import { useState } from 'react';
 import React from 'react';
 
@@ -86,7 +86,6 @@ export default function Footer() {
   const contactInfo: ContactInfo[] = [
     { icon: <FiMapPin className="h-5 w-5" />, text: 'Ministry of Digital Economy & E-Government, 28 Egbu Road.' },
     { icon: <FiMail className="h-5 w-5" />, text: 'info@mdeeg.im.gov.ng' },
-    { icon: <FiPhone className="h-5 w-5" />, text: '+234 913 027 0514' },
   ];
   const columns: FooterColumn = { 
     title: 'Quick Links', 
@@ -209,7 +208,18 @@ export default function Footer() {
                   <div className="text-xs text-gray-700 space-y-1 flex flex-col">
                       {contactInfo.map((item, idx) => (
                           <Reveal key={item.text} delay={idx * 60} direction="up">
-                            <span>{item.text}</span>
+                            {item.text.includes('@') && !item.text.startsWith('mailto:') ? (
+                              <a
+                                href={`mailto:${item.text}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary-green hover:text-primary-green/80 underline"
+                              >
+                                {item.text}
+                              </a>
+                            ) : (
+                              <span>{item.text}</span>
+                            )}
                           </Reveal>
                       ))}
                   </div>

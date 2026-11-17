@@ -4,8 +4,7 @@ import React, { useState } from "react";
 type SupportTicketApiResponse = {
   message?: string;
   ticketId?: string;
-  deliveryMethod?: "termii" | "wa_me_link";
-  waMeLink?: string;
+  deliveryMethod?: "email";
   deliveryError?: string;
   error?: string;
 };
@@ -15,8 +14,7 @@ const ContactFormSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
-  const [deliveryMethod, setDeliveryMethod] = useState<"termii" | "wa_me_link" | null>(null);
-  const [waMeLink, setWaMeLink] = useState<string | null>(null);
+  const [deliveryMethod, setDeliveryMethod] = useState<"email" | null>(null);
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -32,7 +30,6 @@ const ContactFormSection = () => {
     setIsSubmitted(false);
     setTicketId(null);
     setDeliveryMethod(null);
-    setWaMeLink(null);
     setDeliveryError(null);
 
     try {
@@ -51,7 +48,6 @@ const ContactFormSection = () => {
       setIsSubmitted(true);
       setTicketId(data.ticketId || null);
       setDeliveryMethod(data.deliveryMethod || null);
-      setWaMeLink(data.waMeLink || null);
       setDeliveryError(data.deliveryError || null);
       setForm({ name: "", email: "", phone: "", message: "" });
 
@@ -67,33 +63,28 @@ const ContactFormSection = () => {
 
   return (
     <div className="bg-[#222] text-white p-8 rounded shadow-lg w-full max-w-xl mx-auto">
-      <h2 className="text-2xl font-medium mb-2">LET&rsquo;S TALK HERE</h2>
+      <h2 className="text-2xl font-medium mb-2">LET&apos;S TALK HERE</h2>
       <p className="mb-6 text-gray-200 text-sm">Feel free to send us a message</p>
       {isSubmitted && (
         <div className="text-sm mb-4 space-y-2">
-          {deliveryMethod === "termii" ? (
+          {deliveryMethod === "email" ? (
             <p className="text-green-400">
-              Thank you for your message. A support ticket has been sent to the ministry via WhatsApp.
-              {ticketId ? ` Ticket ID: ${ticketId}` : ""}
+              Thank you for your message. A support ticket has been emailed to the ministry.{" "}
+              {ticketId ? `Ticket ID: ${ticketId}` : ""}
             </p>
           ) : (
-            <>
-              <p className="text-yellow-300">
-                Your ticket was created, but automatic delivery is currently unavailable.
-                {ticketId ? ` Ticket ID: ${ticketId}` : ""}
-              </p>
-              {deliveryError && <p className="text-yellow-200 text-xs">Provider notice: {deliveryError}</p>}
-              {waMeLink && (
-                <a
-                  href={waMeLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium"
-                >
-                  Send Ticket via WhatsApp
-                </a>
-              )}
-            </>
+            <p className="text-yellow-300">
+              Your ticket was created, but automatic delivery is currently unavailable.
+              {ticketId ? `Ticket ID: ${ticketId}` : ""}
+            </p>
+          )}
+          {deliveryError && (
+            <p className="text-yellow-200 text-xs">
+              Delivery error: {deliveryError}. Please write to{" "}
+              <a href="mailto:contact@mdeeg.im.gov.ng" className="hover:underline">
+                contact@mdeeg.im.gov.ng
+              </a>
+            </p>
           )}
         </div>
       )}
@@ -122,11 +113,10 @@ const ContactFormSection = () => {
         <input
           type="tel"
           name="phone"
-          placeholder="WhatsApp number (e.g. 09129259960)"
+          placeholder="Phone number (optional)"
           value={form.phone}
           onChange={handleChange}
           className="w-full px-4 py-2 rounded border border-gray-300 text-black bg-white focus:outline-none"
-          required
         />
         <textarea
           name="message"
@@ -148,4 +138,4 @@ const ContactFormSection = () => {
   );
 };
 
-export default ContactFormSection; 
+export default ContactFormSection;

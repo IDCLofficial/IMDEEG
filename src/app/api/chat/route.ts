@@ -8,52 +8,8 @@ import {
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
-const TICKET_THROTTLE_WINDOW_MS = 10 * 60_000;
 
 const rateLimitStore = new Map<string, { count: number; windowStart: number }>();
-const ticketThrottleStore = new Map<string, {
-    lastCreatedAt: number;
-    signature: string;
-    ticketId: string;
-    waMeLink?: string;
-    deliveryMethod: "termii" | "wa_me_link";
-}>();
-
-function createTicketSignature(message: string, reason: "public_request" | "complex_issue"): string {
-    return `${reason}:${message
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 180)}`;
-}
-
-function getThrottledTicket(clientId: string, signature: string): {
-    ticketId: string;
-    waMeLink?: string;
-    deliveryMethod: "termii" | "wa_me_link";
-} | null {
-    const entry = ticketThrottleStore.get(clientId);
-    if (!entry) {
-        return null;
-    }
-
-    const isExpired = Date.now() - entry.lastCreatedAt > TICKET_THROTTLE_WINDOW_MS;
-    if (isExpired) {
-        ticketThrottleStore.delete(clientId);
-        return null;
-    }
-
-    if (entry.signature !== signature) {
-        return null;
-    }
-
-    return {
-        ticketId: entry.ticketId,
-        waMeLink: entry.waMeLink,
-        deliveryMethod: entry.deliveryMethod,
-    };
-}
 
 function getClientId(req: NextRequest): string {
     const forwardedFor = req.headers.get("x-forwarded-for");
@@ -98,20 +54,6 @@ export async function POST(req: NextRequest) {
 
         if (ticketIntent.shouldCreateTicket) {
             const triggerReason = ticketIntent.reason === "public_request" ? "public_request" : "complex_issue";
-            const signature = createTicketSignature(latestUserMessage.content, triggerReason);
-            const throttled = getThrottledTicket(clientId, signature);
-
-            if (throttled) {
-                if (throttled.deliveryMethod === "termii") {
-                    return NextResponse.json({
-                        reply: `A support ticket for this issue was already created recently. Your ticket ID is ${throttled.ticketId}. Please use that for follow-up.`,
-                    });
-                }
-
-                return NextResponse.json({
-                    reply: `A support ticket for this issue was already created recently. Your ticket ID is ${throttled.ticketId}. Please send it via WhatsApp here: ${throttled.waMeLink}.`,
-                });
-            }
 
             try {
                 const contact = extractContactFromText(latestUserMessage.content);
@@ -127,22 +69,10 @@ export async function POST(req: NextRequest) {
                     },
                 });
 
-                ticketThrottleStore.set(clientId, {
-                    lastCreatedAt: Date.now(),
-                    signature,
-                    ticketId: ticket.ticketId,
-                    waMeLink: ticket.waMeLink,
-                    deliveryMethod: ticket.deliveryMethod,
-                });
-
-                if (ticket.deliveryMethod === "termii") {
-                    return NextResponse.json({
-                        reply: `I have created a support ticket for your public request and sent it to the ministry via WhatsApp. Your ticket ID is ${ticket.ticketId}. Please keep this ID for follow-up.`,
-                    });
-                }
-
                 return NextResponse.json({
-                    reply: `I created a support ticket for your public request. Termii delivery is unavailable right now, so please tap this link to send it via WhatsApp: ${ticket.waMeLink} . Your ticket ID is ${ticket.ticketId}.`,
+                    reply: `I have created a support ticket for your request. Ticket ID: ${ticket.ticketId}. The ministry has been emailed and will respond to ${ticket.email || "the email you provided"} at info@mdeeg.im.gov.ng. Please keep the ticket ID for reference.`,
+                    ticketId: ticket.ticketId,
+                    deliveryMethod: ticket.deliveryMethod,
                 });
             } catch {
                 return NextResponse.json({

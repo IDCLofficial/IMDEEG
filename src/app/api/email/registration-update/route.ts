@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-const CAMPAIGN_TAG = "registration-update-2026-11";
+const CAMPAIGN_TAG = "registration-update-2026-11b";
 const BATCH_SIZE = 100;
 const DEFAULT_LIMIT = 500;
 const MAX_LIMIT = 1000;
@@ -26,6 +26,7 @@ type RecipientRow = {
 	id: string;
 	full_name: string;
 	email: string;
+	selected_center: string | null;
 	created_at: string | Date;
 };
 
@@ -158,11 +159,12 @@ function getLimit(raw: unknown) {
 function getEmailBody(row: RecipientRow, siteUrl: string) {
 	const editUrl = buildEditRegistrationUrl(siteUrl, row.id);
 	const firstName = getFirstName(row.full_name);
+	const center = row.selected_center ?? undefined;
 	return {
 		editUrl,
 		firstName,
-		html: buildRegistrationUpdateHtml({ firstName, editUrl }),
-		text: buildRegistrationUpdateText({ firstName, editUrl }),
+		html: buildRegistrationUpdateHtml({ firstName, editUrl, center }),
+		text: buildRegistrationUpdateText({ firstName, editUrl, center }),
 	};
 }
 
@@ -268,7 +270,7 @@ async function nextRecipients(
 
 	if (cursor) {
 		return (await db`
-			SELECT id, full_name, email, created_at
+			SELECT id, full_name, email, selected_center, created_at
 			FROM registrations
 			WHERE btrim(email) <> ''
 			AND (${includeCompleted} OR completed_registration = FALSE)
@@ -280,7 +282,7 @@ async function nextRecipients(
 	}
 
 	return (await db`
-		SELECT id, full_name, email, created_at
+		SELECT id, full_name, email, selected_center, created_at
 		FROM registrations
 		WHERE btrim(email) <> ''
 		AND (${includeCompleted} OR completed_registration = FALSE)
@@ -305,7 +307,7 @@ async function previewResponse(
 			audienceRecipients(audience),
 		]);
 	const sampleRows = (await db`
-		SELECT id, full_name, email, created_at
+		SELECT id, full_name, email, selected_center, created_at
 		FROM registrations
 		WHERE btrim(email) <> ''
 		AND (${includeCompleted} OR completed_registration = FALSE)
@@ -383,14 +385,14 @@ async function sendTest(
 			);
 		}
 		rows = (await db`
-			SELECT id, full_name, email, created_at
+			SELECT id, full_name, email, selected_center, created_at
 			FROM registrations
 			WHERE id = ${registrationId}::uuid
 			LIMIT 1
 		`) as RecipientRow[];
 	} else {
 		rows = (await db`
-			SELECT id, full_name, email, created_at
+			SELECT id, full_name, email, selected_center, created_at
 			FROM registrations
 			WHERE btrim(email) <> ''
 			ORDER BY created_at, id

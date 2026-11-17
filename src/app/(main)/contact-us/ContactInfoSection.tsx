@@ -1,10 +1,10 @@
 import React from "react";
-import { FaMapMarkerAlt, FaEnvelope, FaPhone, FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import { FaEnvelope, FaMapMarkerAlt, FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 
 const contactInfo = {
   address: "Ministry of Digital Economy & E-Government, 28 Egbu Road, Owerri, Imo State, Nigeria.",
   email: "info@mdeeg.im.gov.ng",
-  phone: "+234 913 027 0514",
+  // phone removed – visitors can reach the ministry via the clickable address or reply to the ticket email
   socials: [
     { icon: <FaFacebookF />, href: "#" },
     { icon: <FaTwitter />, href: "#" },
@@ -19,8 +19,12 @@ const ContactInfoSection = () => (
     <h2 className="text-xl font-bold mb-2">Contact Us</h2>
     <ul className="space-y-2 mb-4">
       <li className="flex items-start gap-2 text-[#151A21]"><FaMapMarkerAlt className="mt-1" /> <span>{contactInfo.address}</span></li>
-      <li className="flex items-center gap-2 text-[#151A21]"><FaEnvelope /> <span>{contactInfo.email}</span></li>
-      <li className="flex items-center gap-2 text-[#151A21]"><FaPhone /> <span>{contactInfo.phone}</span></li>
+      <li className="flex items-center gap-2 text-[#151A21]">
+        <FaEnvelope />
+        <a href="mailto:info@mdeeg.im.gov.ng" className="hover:underline text-primary-green">
+          info@mdeeg.im.gov.ng
+        </a>
+      </li>
     </ul>
     <div className="flex gap-4 mt-2">
       {contactInfo.socials.map((s, i) => (
@@ -30,4 +34,4 @@ const ContactInfoSection = () => (
   </div>
 );
 
-export default ContactInfoSection; 
+export default ContactInfoSection;
