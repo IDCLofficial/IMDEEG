@@ -59,7 +59,6 @@ export async function POST(req: NextRequest) {
       ticketId: ticket.ticketId,
       createdAt: ticket.createdAt,
       deliveryMethod: ticket.deliveryMethod,
-      waMeLink: ticket.waMeLink,
       deliveryError: ticket.deliveryError,
     });
   } catch (error) {

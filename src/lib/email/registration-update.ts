@@ -4,6 +4,7 @@ import {
 	WHATSAPP_CHANNEL_URL,
 } from "@/lib/links";
 import { escapeHtml, getFirstName } from "@/lib/email/format";
+import { buildWhatsAppGroupsHtml, buildWhatsAppGroupsText } from "./whatsapp-groups";
 
 export { escapeHtml, getFirstName };
 export { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL, WHATSAPP_CHANNEL_URL };
@@ -19,11 +20,14 @@ export function buildEditRegistrationUrl(siteUrl: string, registrationId: string
 export function buildRegistrationUpdateHtml({
 	firstName,
 	editUrl,
+	center,
 }: {
 	firstName: string;
 	editUrl: string;
+	center?: string;
 }) {
 	const safeFirstName = escapeHtml(firstName || "there");
+	const whatsappGroups = buildWhatsAppGroupsHtml({ center });
 
 	return `<!doctype html>
 <html lang="en">
@@ -52,9 +56,7 @@ export function buildRegistrationUpdateHtml({
       <p>Stay informed, connect with other members, participate in discussions, and receive important updates by joining our Facebook forum.</p>
       <p><a href="${FACEBOOK_FORUM_URL}" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">Join the Facebook Forum</a></p>
 
-      <h3>4. Join Our WhatsApp Channel</h3>
-      <p>Get announcements, reminders, and programme updates delivered straight to your phone by following our WhatsApp channel.</p>
-      <p><a href="${WHATSAPP_CHANNEL_URL}" style="display: inline-block; background: #128c7e; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">Join the WhatsApp Channel</a></p>
+      ${whatsappGroups}
 
       <p>Please complete these steps as soon as possible. Your cooperation helps us maintain accurate records and build a more informed, connected, and engaged community.</p>
 
@@ -69,11 +71,14 @@ export function buildRegistrationUpdateHtml({
 export function buildRegistrationUpdateText({
 	firstName,
 	editUrl,
+	center,
 }: {
 	firstName: string;
 	editUrl: string;
+	center?: string;
 }) {
 	const name = firstName || "there";
+	const whatsappGroups = buildWhatsAppGroupsText({ center });
 
 	return `Dear ${name},
 
@@ -93,9 +98,7 @@ ${INEC_REGISTRATION_URL}
 Stay informed, connect with other members, participate in discussions, and receive important updates by joining our Facebook forum.
 ${FACEBOOK_FORUM_URL}
 
-4. Join Our WhatsApp Channel
-Get announcements, reminders, and programme updates delivered straight to your phone by following our WhatsApp channel.
-${WHATSAPP_CHANNEL_URL}
+${whatsappGroups}
 
 Please complete these steps as soon as possible. Your cooperation helps us maintain accurate records and build a more informed, connected, and engaged community.
 

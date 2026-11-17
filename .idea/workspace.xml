@@ -6,6 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="d574c50b-1baa-44f8-8429-e04eea35121f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/support/tickets.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/support/tickets.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/(main)/contact-us/ContactFormSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(main)/contact-us/ContactFormSection.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/(main)/contact-us/ContactInfoSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(main)/contact-us/ContactInfoSection.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/chat/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/chat/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/support-tickets/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/support-tickets/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/links.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/links.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +68,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
+    </key>
+  </component>
   <component name="RunManager" selected="npm.Next.js: server-side">
     <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
       <method v="2" />
@@ -86,7 +98,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1794830081812</updated>
-      <workItem from="1794830082823" duration="9508000" />
+      <workItem from="1794830082823" duration="14661000" />
     </task>
     <servers />
   </component>

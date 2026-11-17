@@ -1,6 +1,7 @@
 import { Resend } from "resend";
-import { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL } from "@/lib/links";
+import { FACEBOOK_FORUM_URL, INEC_REGISTRATION_URL, WHATSAPP_CHANNEL_URL } from "@/lib/links";
 import { escapeHtml, getFirstName } from "@/lib/email/format";
+import { buildWhatsAppGroupsHtml, buildWhatsAppGroupsText } from "./whatsapp-groups";
 
 export const REGISTRATION_CONFIRMATION_SUBJECT =
 	"Your SkillUp Imo registration is confirmed";
@@ -12,12 +13,15 @@ const SEND_TIMEOUT_MS = 15_000;
 export function buildRegistrationConfirmationHtml({
 	firstName,
 	reference,
+	center,
 }: {
 	firstName: string;
 	reference: string;
+	center?: string;
 }) {
 	const safeFirstName = escapeHtml(firstName || "there");
 	const safeReference = escapeHtml(reference);
+	const whatsappGroups = buildWhatsAppGroupsHtml({ center });
 
 	return `<!doctype html>
 <html lang="en">
@@ -36,7 +40,7 @@ export function buildRegistrationConfirmationHtml({
         Reference: ${safeReference}
       </p>
 
-      <p>Please complete these two important steps to stay connected with our community.</p>
+      <p>Please complete these three important steps to stay connected with our community.</p>
 
       <h3>1. Register with INEC</h3>
       <p>Complete your registration with the Independent National Electoral Commission (INEC) to ensure your participation in the electoral process.</p>
@@ -45,6 +49,8 @@ export function buildRegistrationConfirmationHtml({
       <h3>2. Join Our Facebook Forum</h3>
       <p>Stay informed, connect with other members, participate in discussions, and receive important updates by joining our Facebook forum.</p>
       <p><a href="${FACEBOOK_FORUM_URL}" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">Join the Facebook Forum</a></p>
+
+      ${whatsappGroups}
 
       <p>Thank you for your time and continued participation.</p>
 
@@ -57,11 +63,14 @@ export function buildRegistrationConfirmationHtml({
 export function buildRegistrationConfirmationText({
 	firstName,
 	reference,
+	center,
 }: {
 	firstName: string;
 	reference: string;
+	center?: string;
 }) {
 	const name = firstName || "there";
+	const whatsappGroups = buildWhatsAppGroupsText({ center });
 
 	return `Dear ${name},
 
@@ -69,7 +78,7 @@ Your registration with SkillUp Imo has been confirmed.
 
 Reference: ${reference}
 
-Please complete these two important steps to stay connected with our community.
+Please complete these three important steps to stay connected with our community.
 
 1. Register with INEC
 Complete your registration with the Independent National Electoral Commission (INEC) to ensure your participation in the electoral process.
@@ -78,6 +87,8 @@ ${INEC_REGISTRATION_URL}
 2. Join Our Facebook Forum
 Stay informed, connect with other members, participate in discussions, and receive important updates by joining our Facebook forum.
 ${FACEBOOK_FORUM_URL}
+
+${whatsappGroups}
 
 Thank you for your time and continued participation.
 
@@ -94,11 +105,13 @@ export async function sendRegistrationConfirmation({
 	fullName,
 	email,
 	reference,
+	center,
 }: {
 	id: string;
 	fullName: string;
 	email: string;
 	reference: string;
+	center?: string;
 }): Promise<ConfirmationSendResult> {
 	const apiKey = process.env.RESEND_API_KEY?.trim();
 	if (!apiKey) {
@@ -120,8 +133,8 @@ export async function sendRegistrationConfirmation({
 		from,
 		to: email,
 		subject: REGISTRATION_CONFIRMATION_SUBJECT,
-		html: buildRegistrationConfirmationHtml({ firstName, reference }),
-		text: buildRegistrationConfirmationText({ firstName, reference }),
+		html: buildRegistrationConfirmationHtml({ firstName, reference, center }),
+		text: buildRegistrationConfirmationText({ firstName, reference, center }),
 		replyTo,
 		tags: [{ name: "campaign", value: "registration-confirmation" }],
 	};
