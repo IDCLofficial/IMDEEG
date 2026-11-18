@@ -6,10 +6,6 @@ import { buildWhatsAppGroupsHtml, buildWhatsAppGroupsText } from "./whatsapp-gro
 export const REGISTRATION_CONFIRMATION_SUBJECT =
 	"Your SkillUp Imo registration is confirmed";
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const SEND_TIMEOUT_MS = 15_000;
-
 export function buildRegistrationConfirmationHtml({
 	firstName,
 	reference,
@@ -141,27 +137,31 @@ export async function sendRegistrationConfirmation({
 
 	const resend = new Resend(apiKey);
 
-	for (let attempt = 0; attempt < 2; attempt += 1) {
+	// Single attempt with timeout — a slow or failing Resend call must not
+	// block the registration response.
+	try {
 		const result = await resend.emails.send(payload, {
 			idempotencyKey: `registration-confirmation-${id}`,
-			// Never let a stalled Resend request hold a background task open.
-			signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
+			signal: AbortSignal.timeout(10_000),
 		});
 
 		if (!result.error) {
 			return { ok: true, id: result.data?.id };
 		}
 
-		if (result.error.statusCode === 429 && attempt === 0) {
-			await sleep(1000);
-			continue;
-		}
-
 		return {
 			ok: false,
 			error: result.error.message || "Resend rejected the confirmation email.",
 		};
+	} catch (error) {
+		// Timeout or other error — caller (register route) will roll back the registration.
+		return {
+			ok: false,
+			error: error instanceof DOMException && error.name === "TimeoutError"
+				? "Confirmation email timed out."
+				: error instanceof Error
+					? error.message
+					: "Confirmation email failed.",
+		};
 	}
-
-	return { ok: false, error: "Resend rate limit reached." };
 }

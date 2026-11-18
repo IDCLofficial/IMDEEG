@@ -1,4 +1,4 @@
-import { NextResponse, after } from "next/server";
+import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { TIME_FRAME } from "@/lib/constants";
 import { registrationSchema } from "@/lib/validation";
@@ -96,47 +96,73 @@ export async function POST(req: Request) {
     `;
 		const reference = "SKILLUP-" + String(rows[0].id).slice(0, 8).toUpperCase();
 		const registrationId = String(rows[0].id);
-		const emailConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
 
-		// The registration is saved. Send the confirmation email after the
-		// response is flushed so a slow or failing Resend call never delays
-		// the user's confirmation.
-		after(async () => {
-			if (!emailConfigured) {
-				console.error(
-					"Registration confirmation email skipped: RESEND_API_KEY is not set.",
-				);
-				return;
-			}
+		let emailResult;
+		try {
+			emailResult = await sendRegistrationConfirmation({
+				id: registrationId,
+				fullName: d.fullName,
+				email: d.email,
+				reference,
+				center: d.selectedCenter,
+			});
+		} catch (error) {
+			// Unhandled exception from Resend / timeout / network → roll back
+			await db`DELETE FROM registrations WHERE id = ${registrationId}::uuid`;
+			console.error(
+				"Registration insert failed after email error; rolled back",
+				error,
+			);
+			return NextResponse.json(
+				{
+					ok: false,
+					message:
+						"We could not send your confirmation email. Please try again.",
+				},
+				{ status: 502 },
+			);
+		}
 
-			try {
-				const emailResult = await sendRegistrationConfirmation({
-					id: registrationId,
-					fullName: d.fullName,
-					email: d.email,
-					reference,
-				});
+		if (emailResult.ok) {
+			// Email accepted — mark as confirmed.
+			await db`
+      UPDATE registrations
+      SET email_confirmed = TRUE
+      WHERE id = ${registrationId}::uuid
+    `;
+			return NextResponse.json(
+				{ ok: true, reference },
+				{ status: 201 },
+			);
+		}
 
-				if (emailResult.ok) {
-					await db`
-						UPDATE registrations
-						SET email_confirmed = TRUE
-						WHERE id = ${registrationId}::uuid
-					`;
-				} else {
-					console.error(
-						"Registration confirmation email failed:",
-						emailResult.error,
-					);
-				}
-			} catch (error) {
-				console.error("Registration confirmation email failed:", error);
-			}
-		});
+		if (emailResult.skipped) {
+			// No RESEND_API_KEY configured — register the user but keep
+			// email_confirmed FALSE so the admin broadcast can send later.
+			console.error(
+				"Registration confirmation email skipped: RESEND_API_KEY is not set."
+			);
+			// Do NOT set email_confirmed; keep the row as-is.
+			return NextResponse.json(
+				{ ok: true, reference },
+				{ status: 201 },
+			);
+		}
 
+		// Email send failed (not skipped) — remove the registration so the user is
+		// not recorded without a confirmed email.
+		await db`DELETE FROM registrations WHERE id = ${registrationId}::uuid`;
+		console.error(
+			"Registration confirmation email failed:",
+			emailResult.error,
+		);
 		return NextResponse.json(
-			{ ok: true, reference, emailQueued: emailConfigured },
-			{ status: 201 },
+			{
+				ok: false,
+				message:
+					"We could not send your confirmation email. Please try again.",
+			},
+			{ status: 502 },
 		);
 	} catch (err: unknown) {
 		const e = err as { code?: string; constraint?: string };
